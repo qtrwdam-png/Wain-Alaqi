@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { StoreCard } from "@/components/store-card";
+import { CategoryIcon } from "@/components/category-icon";
 
 export const dynamic = "force-dynamic";
 
@@ -43,8 +44,11 @@ export default async function CategoryPage({ params }: { params: { slug: string 
       </nav>
 
       <div className="mt-4 flex items-start gap-3 sm:gap-4">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-2xl text-brand-600 sm:h-16 sm:w-16 sm:text-3xl">
-          {category.icon || "🏷️"}
+        <div
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 sm:h-16 sm:w-16"
+          aria-label={category.name}
+        >
+          <CategoryIcon slug={category.slug} className="h-8 w-8 sm:h-9 sm:w-9" />
         </div>
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900 sm:text-3xl">{category.name}</h1>
