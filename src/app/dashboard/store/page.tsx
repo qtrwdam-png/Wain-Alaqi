@@ -36,9 +36,29 @@ export default async function StoreDashboardHome() {
   return (
     <div>
       <h1 className="text-2xl font-extrabold text-gray-900">نظرة عامة</h1>
-      {store.status !== "APPROVED" && (
-        <div className="mt-4 rounded-lg bg-amber-50 p-4 text-sm text-amber-700">
-          متجرك حالياً {store.status === "PENDING_REVIEW" ? "بانتظار المراجعة من الإدارة" : "غير معتمد"}. لن يظهر للعامة حتى تتم الموافقة.
+      {store.status === "PENDING_REVIEW" && (
+        <div className="mt-4 rounded-lg bg-amber-50 p-4 text-sm text-amber-800 ring-1 ring-amber-200">
+          <p className="font-bold">⏳ متجرك بانتظار المراجعة</p>
+          <p className="mt-1">تم إرسال طلبك وسيقوم فريق الإدارة بمراجعته. سيظهر المتجر للعامة بعد الموافقة، وستصلك إشعاراً عند تغيير الحالة.</p>
+        </div>
+      )}
+      {store.status === "REJECTED" && (
+        <div className="mt-4 rounded-lg bg-red-50 p-4 text-sm text-red-800 ring-1 ring-red-200">
+          <p className="font-bold">❌ تم رفض متجرك</p>
+          <p className="mt-1">{store.rejectionReason || "يرجى مراجعة بيانات المتجر وتعديلها ثم إعادة الإرسال."}</p>
+          <Link href="/dashboard/store/settings" className="btn-secondary mt-3 inline-block">تعديل بيانات المتجر</Link>
+        </div>
+      )}
+      {store.status === "SUSPENDED" && (
+        <div className="mt-4 rounded-lg bg-red-50 p-4 text-sm text-red-800 ring-1 ring-red-200">
+          <p className="font-bold">⛔ تم إيقاف متجرك</p>
+          <p className="mt-1">تم إيقاف متجرك مؤقتاً من قبل الإدارة. يرجى التواصل مع الدعم.</p>
+        </div>
+      )}
+      {store.status === "APPROVED" && (
+        <div className="mt-4 rounded-lg bg-brand-50 p-4 text-sm text-brand-800 ring-1 ring-brand-200">
+          <p className="font-bold">✅ متجرك معتمد ومباشر</p>
+          <p className="mt-1">متجرك متاح للعامة. شاركه مع عملائك!</p>
         </div>
       )}
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">

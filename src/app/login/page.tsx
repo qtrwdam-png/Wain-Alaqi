@@ -9,6 +9,7 @@ function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const from = params.get("from") || "/";
+  const registered = params.get("registered") === "1";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +30,12 @@ function LoginForm() {
       <div className="card w-full max-w-md p-8">
         <h1 className="text-2xl font-extrabold text-gray-900">تسجيل الدخول</h1>
         <p className="mt-1 text-sm text-gray-500">ادخل بياناتك للوصول إلى لوحة التحكم.</p>
+        {registered && (
+          <p className="mt-3 rounded-lg bg-brand-50 p-3 text-sm text-brand-700">تم إنشاء حسابك بنجاح. سجّل الدخول للمتابعة.</p>
+        )}
+        {from === "/add-store" && !registered && (
+          <p className="mt-3 rounded-lg bg-brand-50 p-3 text-sm text-brand-700">سجّل الدخول للمتابعة في إنشاء متجرك.</p>
+        )}
         <form onSubmit={submit} className="mt-6 space-y-4">
           <div>
             <label className="label">البريد الإلكتروني</label>

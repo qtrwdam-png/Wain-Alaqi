@@ -37,6 +37,39 @@ export async function PATCH(req: Request, { params }: Ctx) {
 
   const updated = await prisma.store.update({ where: { id: params.id }, data: { status, verified, ...extra } });
   logger.audit(admin.id, `store.${action}`, "store", params.id);
+
+  // Create notification for the store owner
+  const typeMap: Record<string, string> = {
+    approve: "STORE_APPROVED",
+    reject: "STORE_REJECTED",
+    suspend: "STORE_SUSPENDED",
+    restore: "STORE_RESTORED",
+  };
+  const type = typeMap[action];
+  if (type) {
+    const titleMap: Record<string, string> = {
+      approve: "تمت الموافقة على متجرك ✅",
+      reject: "تم رفض متجرك ❌",
+      suspend: "تم إيقاف متجرك ⛔",
+      restore: "تم استعادة متجرك ✅",
+    };
+    const msgMap: Record<string, string> = {
+      approve: "تمت الموافقة على متجرك وسيظهر الآن للعامة.",
+      reject: `تم رفض متجرك. ${rejectionReason ? `السبب: ${rejectionReason}` : "يرجى مراجعة البيانات وإعادة المحاولة."}`,
+      suspend: "تم إيقاف متجرك مؤقتاً من قبل الإدارة.",
+      restore: "تمت استعادة متجرك وهو متاح الآن للعامة.",
+    };
+    await prisma.notification.create({
+      data: {
+        userId: store.ownerId,
+        type: type as any,
+        title: titleMap[action],
+        message: msgMap[action],
+        link: "/dashboard/store",
+      },
+    }).catch((e) => logger.error("notification.create", { error: String(e) }));
+  }
+
   return NextResponse.json({ ok: true, store: updated });
 }
 

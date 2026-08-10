@@ -26,11 +26,11 @@ export const storeRegistrationSchema = z.object({
   logo: z.string().optional(),
   coverImage: z.string().optional(),
   openingHours: z.string().optional(),
-  // owner
-  ownerName: z.string().min(2, "اسم المالك مطلوب"),
-  ownerEmail: z.string().email("بريد إلكتروني غير صالح"),
+  // owner (legacy — now using authenticated session)
+  ownerName: z.string().optional(),
+  ownerEmail: z.string().optional(),
   ownerPhone: z.string().optional(),
-  ownerPassword: z.string().min(8, "كلمة المرور يجب أن تكون 8 أحرف على الأقل"),
+  ownerPassword: z.string().optional(),
 });
 
 export const productSchema = z.object({

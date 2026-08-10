@@ -57,6 +57,7 @@ model User {
   searchRequests SearchRequest[]
   searchQueries  SearchQuery[]
   reports       Report[]
+  notifications Notification[]
 
   @@map("users")
 }
@@ -289,4 +290,30 @@ model AuditLog {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("audit_logs")
+}
+
+// ---------------------------------------------------------------------------
+// Notification — إشعارات للمستخدمين (موافقة/رفض المتجر وغيرها)
+// ---------------------------------------------------------------------------
+enum NotificationType {
+  STORE_APPROVED
+  STORE_REJECTED
+  STORE_SUSPENDED
+  STORE_RESTORED
+  SYSTEM
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String           @map("user_id")
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType @default(SYSTEM)
+  title     String
+  message   String
+  link      String?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  @@index([userId, read])
+  @@map("notifications")
 }

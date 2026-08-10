@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { fetchWithRetry } from "@/lib/fetch-retry";
 import Link from "next/link";
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
+  const params = useSearchParams();
+  const from = params.get("from") || "/";
   const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -22,13 +24,16 @@ export default function RegisterPage() {
     const data = await res.json();
     setLoading(false);
     if (!res.ok) { setError(data.error || "حدث خطأ"); return; }
-    router.push("/login?registered=1");
+    router.push(`/login?registered=1&from=${encodeURIComponent(from)}`);
   }
 
   return (
     <div className="container-app flex min-h-[70vh] items-center justify-center py-10">
       <div className="card w-full max-w-md p-8">
         <h1 className="text-2xl font-extrabold text-gray-900">إنشاء حساب</h1>
+        {from === "/add-store" && (
+          <p className="mt-1 text-sm text-brand-700">سجّل حسابك أولاً، ثم ستنتقل لإنشاء متجرك.</p>
+        )}
         <form onSubmit={submit} className="mt-6 space-y-4">
           <div>
             <label className="label">الاسم</label>
@@ -54,5 +59,13 @@ export default function RegisterPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="container-app py-20 text-center text-gray-400">جارٍ التحميل…</div>}>
+      <RegisterForm />
+    </Suspense>
   );
 }

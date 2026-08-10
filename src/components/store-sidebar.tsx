@@ -18,7 +18,7 @@ export function StoreSidebar({ store }: { store: Store | null }) {
         <p className="text-sm text-gray-400">لوحة التاجر</p>
         <p className="font-bold text-gray-800">{store?.name || "لا يوجد متجر"}</p>
         {store && (
-          <span className={`badge mt-1 ${store.status === "APPROVED" ? "badge-green" : store.status === "PENDING_REVIEW" ? "badge-yellow" : "badge-gray"}`}>
+          <span className={`badge mt-1 ${store.status === "APPROVED" ? "badge-green" : store.status === "PENDING_REVIEW" ? "badge-yellow" : store.status === "REJECTED" ? "badge-red" : "badge-gray"}`}>
             {store.status === "APPROVED" ? "معتمد" : store.status === "PENDING_REVIEW" ? "بانتظار المراجعة" : store.status === "REJECTED" ? "مرفوض" : store.status === "SUSPENDED" ? "موقوف" : store.status}
           </span>
         )}
@@ -32,6 +32,9 @@ export function StoreSidebar({ store }: { store: Store | null }) {
             </Link>
           );
         })}
+        <Link href="/account/settings" className="nav-link flex items-center gap-2">
+          <span>👤</span> إعدادات الحساب
+        </Link>
       </nav>
     </aside>
   );

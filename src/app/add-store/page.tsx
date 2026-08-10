@@ -2,16 +2,18 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { fetchWithRetry } from "@/lib/fetch-retry";
+import { LocationPickerMap } from "@/components/location-picker-map";
 
 export default function AddStorePage() {
+  const { data: session, status } = useSession();
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [cities, setCities] = useState<{ id: string; name: string }[]>([]);
   const [form, setForm] = useState({
     storeName: "", categoryId: "", cityId: "", description: "", phone: "", whatsapp: "", address: "",
     latitude: undefined as number | undefined, longitude: undefined as number | undefined,
     logo: "", coverImage: "", openingHours: "",
-    ownerName: "", ownerEmail: "", ownerPhone: "", ownerPassword: "",
   });
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -31,7 +33,7 @@ export default function AddStorePage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true); setError(null);
-    const res = await fetch("/api/stores/register", {
+    const res = await fetchWithRetry("/api/stores/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
@@ -42,14 +44,34 @@ export default function AddStorePage() {
     setSuccess(true);
   }
 
+  if (status === "loading") {
+    return <div className="container-app py-20 text-center text-gray-400">جارٍ التحميل…</div>;
+  }
+
+  if (status === "unauthenticated") {
+    return (
+      <div className="container-app py-16">
+        <div className="mx-auto max-w-md text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-100 text-3xl">🏪</div>
+          <h1 className="text-2xl font-extrabold text-gray-900">أنشئ حساب التاجر أولاً</h1>
+          <p className="mt-2 text-gray-500">يجب تسجيل حساب قبل إنشاء متجرك. سجّل بياناتك، ثم ستنتقل تلقائياً لصفحة إنشاء المتجر.</p>
+          <div className="mt-6 flex flex-col gap-2">
+            <Link href="/register?from=/add-store" className="btn-primary">إنشاء حساب جديد</Link>
+            <Link href="/login?from=/add-store" className="btn-secondary">لدي حساب — تسجيل الدخول</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (success) {
     return (
       <div className="container-app py-20 text-center">
         <div className="mx-auto max-w-md">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-100 text-3xl">✓</div>
           <h1 className="text-2xl font-extrabold text-gray-900">تم إرسال طلبك بنجاح</h1>
-          <p className="mt-2 text-gray-500">سيتم مراجعة المتجر من إدارة المنصة. يمكنك تسجيل الدخول بعد الموافقة.</p>
-          <Link href="/login" className="btn-primary mt-6 inline-block">تسجيل الدخول</Link>
+          <p className="mt-2 text-gray-500">سيتم مراجعة المتجر من إدارة المنصة. ستظهر حالة الطلب في لوحة التاجر، وستصلك إشعاراً عند الموافقة أو الرفض.</p>
+          <Link href="/dashboard/store" className="btn-primary mt-6 inline-block">الذهاب إلى لوحة التاجر</Link>
         </div>
       </div>
     );
@@ -78,33 +100,29 @@ export default function AddStorePage() {
               <div><label className="label">الهاتف</label><input className="input" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
               <div><label className="label">واتساب</label><input className="input" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} placeholder="9627XXXXXXXX" /></div>
             </div>
-            <div><label className="label">العنوان *</label><input className="input" required value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div><label className="label">خط العرض</label><input type="number" step="any" className="input" value={form.latitude ?? ""} onChange={(e) => setForm({ ...form, latitude: e.target.value ? Number(e.target.value) : undefined })} /></div>
-              <div><label className="label">خط الطول</label><input type="number" step="any" className="input" value={form.longitude ?? ""} onChange={(e) => setForm({ ...form, longitude: e.target.value ? Number(e.target.value) : undefined })} /></div>
-              <div><label className="label">المدينة *</label>
-                <select className="input" required value={form.cityId} onChange={(e) => setForm({ ...form, cityId: e.target.value })}>
-                  <option value="">اختر المدينة</option>
-                  {cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-              </div>
+            <div><label className="label">العنوان *</label><input className="input" required value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="مثال: شارع الملك حسين، الرمثا" /></div>
+            <div><label className="label">المدينة *</label>
+              <select className="input" required value={form.cityId} onChange={(e) => setForm({ ...form, cityId: e.target.value })}>
+                <option value="">اختر المدينة</option>
+                {cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="label">موقع المتجر على الخريطة *</label>
+              <p className="mb-2 text-xs text-gray-400">ابحث عن مكان متجرك أو اسحب الدبوس الأزرق إلى الموقع الصحيح، ثم اضغط حفظ الموقع.</p>
+              <LocationPickerMap
+                latitude={form.latitude}
+                longitude={form.longitude}
+                onChange={(lat, lng) => setForm((f) => ({ ...f, latitude: lat, longitude: lng }))}
+              />
+              {(form.latitude || form.longitude) && (
+                <p className="mt-2 text-xs text-brand-600">✓ تم تحديد الموقع: {form.latitude?.toFixed(5)}, {form.longitude?.toFixed(5)}</p>
+              )}
             </div>
             <div><label className="label">ساعات العمل</label><input className="input" value={form.openingHours} onChange={(e) => setForm({ ...form, openingHours: e.target.value })} placeholder="السبت-الخميس: 9 صباحاً - 9 مساءً" /></div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div><label className="label">رابط الشعار</label><input className="input" value={form.logo} onChange={(e) => setForm({ ...form, logo: e.target.value })} placeholder="https://…" /></div>
               <div><label className="label">رابط صورة الغلاف</label><input className="input" value={form.coverImage} onChange={(e) => setForm({ ...form, coverImage: e.target.value })} placeholder="https://…" /></div>
-            </div>
-          </fieldset>
-
-          <fieldset className="card space-y-4 p-6">
-            <legend className="px-2 text-lg font-bold">معلومات المالك</legend>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div><label className="label">الاسم *</label><input className="input" required value={form.ownerName} onChange={(e) => setForm({ ...form, ownerName: e.target.value })} /></div>
-              <div><label className="label">البريد الإلكتروني *</label><input type="email" className="input" required value={form.ownerEmail} onChange={(e) => setForm({ ...form, ownerEmail: e.target.value })} /></div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div><label className="label">رقم الهاتف</label><input className="input" value={form.ownerPhone} onChange={(e) => setForm({ ...form, ownerPhone: e.target.value })} /></div>
-              <div><label className="label">كلمة المرور *</label><input type="password" className="input" required value={form.ownerPassword} onChange={(e) => setForm({ ...form, ownerPassword: e.target.value })} /></div>
             </div>
           </fieldset>
 

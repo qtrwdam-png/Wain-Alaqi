@@ -1,5 +1,7 @@
 "use client";
 import { fetchWithRetry } from "@/lib/fetch-retry";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 import { useState, useEffect } from "react";
 
@@ -12,12 +14,14 @@ type Review = {
 };
 
 export function ReviewsSection({ storeId, storeSlug }: { storeId: string; storeSlug: string }) {
+  const { data: session, status } = useSession();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     fetchWithRetry(`/api/reviews?storeId=${storeId}`)
@@ -29,12 +33,14 @@ export function ReviewsSection({ storeId, storeSlug }: { storeId: string; storeS
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null); setSuccess(null);
-    const res = await fetch("/api/reviews", {
+    setSubmitting(true);
+    const res = await fetchWithRetry("/api/reviews", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ storeId, rating, comment }),
     });
     const data = await res.json();
+    setSubmitting(false);
     if (!res.ok) {
       setError(data.error || "حدث خطأ");
       return;
@@ -47,26 +53,41 @@ export function ReviewsSection({ storeId, storeSlug }: { storeId: string; storeS
   return (
     <div>
       <h2 className="mb-4 text-lg font-bold">التقييمات</h2>
-      <form onSubmit={submit} className="card mb-6 p-4">
-        <div className="mb-3 flex items-center gap-2">
-          <span className="text-sm font-medium">تقييمك:</span>
-          {[1, 2, 3, 4, 5].map((n) => (
-            <button type="button" key={n} onClick={() => setRating(n)} className="text-2xl" aria-label={`${n} نجوم`}>
-              <span className={n <= rating ? "text-amber-400" : "text-gray-300"}>★</span>
-            </button>
-          ))}
+
+      {status === "authenticated" ? (
+        <form onSubmit={submit} className="card mb-6 p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="text-sm font-medium">تقييمك:</span>
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button type="button" key={n} onClick={() => setRating(n)} className="text-2xl" aria-label={`${n} نجوم`}>
+                <span className={n <= rating ? "text-amber-400" : "text-gray-300"}>★</span>
+              </button>
+            ))}
+          </div>
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="أضف تعليقًا (اختياري)…"
+            className="input mb-3"
+            rows={3}
+          />
+          {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
+          {success && <p className="mb-2 text-sm text-brand-600">{success}</p>}
+          <button type="submit" disabled={submitting} className="btn-primary">
+            {submitting ? "جارٍ الإرسال…" : "إرسال التقييم"}
+          </button>
+        </form>
+      ) : (
+        <div className="card mb-6 p-6 text-center">
+          <p className="text-gray-600">يجب تسجيل الدخول لإضافة تقييم.</p>
+          <Link
+            href={`/login?from=/stores/${storeSlug}`}
+            className="btn-primary mt-3 inline-block"
+          >
+            تسجيل الدخول للتقييم
+          </Link>
         </div>
-        <textarea
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          placeholder="أضف تعليقًا (اختياري)…"
-          className="input mb-3"
-          rows={3}
-        />
-        {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
-        {success && <p className="mb-2 text-sm text-brand-600">{success}</p>}
-        <button type="submit" className="btn-primary">إرسال التقييم</button>
-      </form>
+      )}
 
       {loading ? (
         <p className="text-sm text-gray-400">جارٍ التحميل…</p>

@@ -1,37 +1,40 @@
 import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { storeRegistrationSchema } from "@/lib/validations";
 import { slugify } from "@/lib/utils";
 import { logger } from "@/lib/logger";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "يجب تسجيل الدخول أولاً" }, { status: 401 });
+    }
+
     const body = await req.json();
     const parsed = storeRegistrationSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json({ error: parsed.error.issues[0]?.message || "بيانات غير صالحة" }, { status: 400 });
     }
     const d = parsed.data;
-    const email = d.ownerEmail.toLowerCase();
 
-    const exists = await prisma.user.findUnique({ where: { email } });
-    if (exists) {
-      return NextResponse.json({ error: "البريد الإلكتروني مستخدم بالفعل" }, { status: 409 });
+    // Check if user already owns a store
+    const existingStore = await prisma.store.findFirst({ where: { ownerId: session.user.id } });
+    if (existingStore) {
+      return NextResponse.json({ error: "لديك متجر مسجل بالفعل" }, { status: 409 });
     }
 
-    const hash = await bcrypt.hash(d.ownerPassword, 12);
     const baseSlug = slugify(d.storeName);
 
     const result = await prisma.$transaction(async (tx) => {
-      const owner = await tx.user.create({
-        data: {
-          name: d.ownerName,
-          email,
-          phone: d.ownerPhone,
-          passwordHash: hash,
-          role: "STORE_OWNER",
-        },
+      // Promote user to STORE_OWNER role if they're a regular user
+      await tx.user.update({
+        where: { id: session.user.id },
+        data: { role: "STORE_OWNER" },
       });
       let slug = baseSlug;
       let n = 1;
@@ -45,7 +48,7 @@ export async function POST(req: Request) {
           slug,
           description: d.description,
           categoryId: d.categoryId,
-          ownerId: owner.id,
+          ownerId: session.user.id,
           cityId: d.cityId,
           phone: d.phone,
           whatsapp: d.whatsapp,
@@ -58,10 +61,10 @@ export async function POST(req: Request) {
           status: "PENDING_REVIEW",
         },
       });
-      return { owner, store };
+      return { store };
     });
 
-    logger.info("store.registered", { storeId: result.store.id, ownerId: result.owner.id });
+    logger.info("store.registered", { storeId: result.store.id, ownerId: session.user.id });
     return NextResponse.json({ ok: true, storeId: result.store.id, status: "PENDING_REVIEW" }, { status: 201 });
   } catch (e) {
     logger.error("store.register.failed", { error: String(e) });
