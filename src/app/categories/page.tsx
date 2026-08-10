@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { CategoryIcon } from "@/components/category-icon";
 
 export const dynamic = "force-dynamic";
 
@@ -24,8 +25,11 @@ export default async function CategoriesPage() {
       <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
         {categories.map((c) => (
           <Link key={c.id} href={`/categories/${c.slug}`} className="card group flex flex-col items-center justify-center p-4 text-center transition hover:shadow-card-hover sm:p-5">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-xl text-brand-600 transition group-hover:bg-brand-100 sm:h-14 sm:w-14 sm:text-2xl">
-              {c.icon || "🏷️"}
+            <div
+              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 transition group-hover:bg-brand-100 sm:h-14 sm:w-14"
+              aria-label={c.name}
+            >
+              <CategoryIcon slug={c.slug} className="h-6 w-6 sm:h-7 sm:w-7" />
             </div>
             <h3 className="mt-3 text-sm font-bold text-gray-900">{c.name}</h3>
             <span className="mt-1 text-xs text-gray-400">{c._count.stores} متجر</span>

@@ -52,3 +52,22 @@ npm run db:studio        # prisma studio
 - **Header role awareness:** `src/components/site-header.tsx` shows role-specific shortcuts — store owners get «لوحة المتجر», staff get «لوحة الإدارة», users get «حسابي» + «أضف متجرك».
 - **User account home:** `src/app/account/page.tsx` is a role-aware landing showing shortcuts and recent activity (reviews, search requests). Replaces sending users to `/account/settings` directly after login.
 - **Prisma client URL safety:** `src/lib/prisma.ts` uses `buildDatabaseUrl()` with a fallback so `next build` doesn't crash when `DATABASE_URL` is absent (dynamic pages don't execute at build, but the client is constructed at import time).
+
+## Server-side Auth Guard Pattern (for protected pages)
+- **Use `getCurrentUser()` from `@/lib/auth-guard`** in server components to check authentication and redirect unauthenticated visitors server-side — no client "loading" flicker. Pattern: `const user = await getCurrentUser(); if (!user) redirect("/login?from=/path");`
+- **Split interactive pages:** a server component page fetches data (Prisma) and guards auth, then renders a `"use client"` child component that receives the data as props. Example: `src/app/account/settings/page.tsx` (server) + `src/components/account-settings-form.tsx` (client).
+- **Avoid `useSession()` + `useEffect` redirect** for protected pages — the `status === "loading"` state can hang indefinitely (session provider not hydrating), leaving the page stuck on "جارٍ التحميل…". Server-side `redirect()` is instantaneous and SEO-safe.
+- **Server `redirect()` returns HTTP 307** (temporary redirect) with a `Location` header — verified via `curl -I`.
+
+## Category Icons (SVG, not emoji)
+- **Use `CategoryIcon` component** (`src/components/category-icon.tsx`) for ALL category icon rendering — it maps category `slug` → inline SVG path. Emoji rendered server-side can show as tofu boxes (□) on systems lacking color-emoji fonts.
+- **Three pages must use it:** home (`category-card.tsx`), `/categories` listing (`categories/page.tsx`), and `/categories/[slug]` (category detail). Do NOT use `category.icon` (emoji string) directly in JSX.
+- The admin categories table (`admin-categories.tsx`) still renders emoji for the admin UI only — out of scope for the public-facing fix.
+
+## Search Request → User Linking
+- **`POST /api/search-requests`** reads the session via `getServerSession(authOptions)` and links `userId` when authenticated. Anonymous requests save `userId = null` (still accepted).
+- **`/account` page** displays the user's search requests with `notes` and `status` (using `SEARCH_REQUEST_STATUS_LABELS` from constants). Requests are scoped to the logged-in user only — other users cannot see them.
+
+## DB Performance (High-Traffic)
+- **Indexes added:** `@@index([userId])` on `Review` and `SearchRequest` models in `prisma/schema.prisma`. Applied via `prisma db push`. Railway `entrypoint.sh` runs `prisma db push` on deploy so indexes auto-apply.
+- These indexes support the common query patterns: fetching a user's reviews / search requests on `/account`.

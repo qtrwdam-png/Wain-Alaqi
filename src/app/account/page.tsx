@@ -2,8 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser, getOwnedStore } from "@/lib/auth-guard";
-import { ROLE_LABELS } from "@/config/constants";
-import { STORE_STATUS_LABELS } from "@/config/constants";
+import { ROLE_LABELS, STORE_STATUS_LABELS, SEARCH_REQUEST_STATUS_LABELS } from "@/config/constants";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "حسابي" };
@@ -130,7 +129,13 @@ export default async function AccountHomePage() {
               <div className="space-y-2">
                 {mySearchRequests.map((s) => (
                   <div key={s.id} className="card p-4">
-                    <p className="font-medium text-gray-800">{s.query}</p>
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-medium text-gray-800">{s.query}</p>
+                      <span className="shrink-0 rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-700">
+                        {SEARCH_REQUEST_STATUS_LABELS[s.status] || s.status}
+                      </span>
+                    </div>
+                    {s.notes && <p className="mt-1 text-sm text-gray-600">{s.notes}</p>}
                     <p className="mt-1 text-xs text-gray-400">
                       {new Date(s.createdAt).toLocaleDateString("ar")} · عدد الطلبات: {s.count}
                     </p>

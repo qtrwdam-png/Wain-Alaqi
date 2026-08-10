@@ -194,6 +194,7 @@ model Review {
   reports Report[]
 
   @@unique([storeId, userId])
+  @@index([userId])
   @@map("reviews")
 }
 
@@ -262,6 +263,7 @@ model SearchRequest {
 
   @@index([query])
   @@index([status])
+  @@index([userId])
   @@map("search_requests")
 }
 
