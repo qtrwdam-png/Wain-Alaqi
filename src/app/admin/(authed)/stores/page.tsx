@@ -26,12 +26,12 @@ export default async function AdminStoresPage({ searchParams }: { searchParams: 
         <StoresListClient currentStatus={searchParams.status || ""} q={searchParams.q || ""} statuses={statuses} labels={STORE_STATUS_LABELS} />
       </Suspense>
 
-      <div className="mt-6 overflow-x-auto">
-        <table className="w-full text-right text-sm">
+      <div className="mt-6 table-wrap rounded-lg bg-white ring-1 ring-gray-100">
+        <table>
           <thead className="border-b text-gray-400">
             <tr>
-              <th className="p-2">المتجر</th><th className="p-2">القطاع</th><th className="p-2">التاجر</th>
-              <th className="p-2">الحالة</th><th className="p-2">تجريبي</th><th className="p-2">إجراءات</th>
+              <th className="p-2 text-right">المتجر</th><th className="p-2 text-right">القطاع</th><th className="p-2 text-right">التاجر</th>
+              <th className="p-2 text-right">الحالة</th><th className="p-2 text-right">تجريبي</th><th className="p-2 text-right">إجراءات</th>
             </tr>
           </thead>
           <tbody>
@@ -51,7 +51,7 @@ export default async function AdminStoresPage({ searchParams }: { searchParams: 
             ))}
           </tbody>
         </table>
-        {stores.length === 0 && <p className="mt-4 rounded-lg bg-white p-6 text-center text-gray-500 ring-1 ring-gray-100">لا توجد متاجر مطابقة.</p>}
+        {stores.length === 0 && <p className="p-6 text-center text-gray-500">لا توجد متاجر مطابقة.</p>}
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { signIn, getSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { APP_NAME } from "@/config/constants";
+import { Logo } from "@/components/logo";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -40,9 +41,7 @@ export default function AdminLoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-10">
       <div className="card w-full max-w-md p-8">
         <div className="mb-6 flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-brand-700 text-lg font-bold text-white">
-            و
-          </span>
+          <Logo size={44} withText={false} priority />
           <div>
             <p className="text-xs text-gray-400">{APP_NAME} — لوحة الإدارة</p>
             <h1 className="text-xl font-extrabold text-gray-900">تسجيل دخول الإدارة</h1>

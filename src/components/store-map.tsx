@@ -54,5 +54,5 @@ export function StoreMap({ lat, lng, name, markers }: {
     return () => { cancelled = true; if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; } };
   }, [lat, lng, name, markers]);
 
-  return <div ref={ref} style={{ height: 320, width: "100%" }} />;
+  return <div ref={ref} style={{ height: 280, width: "100%" }} className="h-[280px] sm:h-[320px]" />;
 }

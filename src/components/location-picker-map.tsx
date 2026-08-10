@@ -165,7 +165,7 @@ export function LocationPickerMap({
         </button>
       </div>
 
-      <div ref={ref} style={{ height: 360, width: "100%" }} className="overflow-hidden rounded-lg border border-gray-200" />
+      <div ref={ref} style={{ height: 300, width: "100%" }} className="overflow-hidden rounded-lg border border-gray-200 sm:h-[360px]" />
 
       <div className="flex items-center gap-3">
         <button type="button" onClick={saveLocation} className="btn-primary">

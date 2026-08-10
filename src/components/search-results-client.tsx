@@ -23,35 +23,39 @@ export function SearchResultsClient({ q, categories, searchParams }: {
   }
 
   return (
-    <div className="mt-4 flex flex-wrap items-end gap-3 rounded-lg bg-white p-4 ring-1 ring-gray-100">
-      <div>
-        <label className="label">القطاع</label>
-        <select value={cat} onChange={(e) => setCat(e.target.value)} className="input min-w-[150px]">
-          <option value="">الكل</option>
-          {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
+    <div className="mt-4 rounded-lg bg-white p-4 ring-1 ring-gray-100">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <label className="label">القطاع</label>
+          <select value={cat} onChange={(e) => setCat(e.target.value)} className="input w-full">
+            <option value="">الكل</option>
+            {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="label">الترتيب</label>
+          <select value={sort} onChange={(e) => setSort(e.target.value)} className="input w-full">
+            <option value="relevance">الأكثر صلة</option>
+            <option value="price_asc">السعر: من الأقل</option>
+            <option value="price_desc">السعر: من الأعلى</option>
+            <option value="nearest">الأقرب</option>
+            <option value="rating">الأعلى تقييماً</option>
+            <option value="recent">الأحدث</option>
+          </select>
+        </div>
+        <div>
+          <label className="label">التوفر</label>
+          <select value={avail} onChange={(e) => setAvail(e.target.value)} className="input w-full">
+            <option value="">الكل</option>
+            <option value="AVAILABLE">متوفر</option>
+            <option value="LOW_STOCK">كمية محدودة</option>
+            <option value="OUT_OF_STOCK">غير متوفر</option>
+          </select>
+        </div>
+        <div className="flex items-end">
+          <button onClick={apply} className="btn-primary w-full">تطبيق</button>
+        </div>
       </div>
-      <div>
-        <label className="label">الترتيب</label>
-        <select value={sort} onChange={(e) => setSort(e.target.value)} className="input min-w-[150px]">
-          <option value="relevance">الأكثر صلة</option>
-          <option value="price_asc">السعر: من الأقل</option>
-          <option value="price_desc">السعر: من الأعلى</option>
-          <option value="nearest">الأقرب</option>
-          <option value="rating">الأعلى تقييماً</option>
-          <option value="recent">الأحدث</option>
-        </select>
-      </div>
-      <div>
-        <label className="label">التوفر</label>
-        <select value={avail} onChange={(e) => setAvail(e.target.value)} className="input min-w-[140px]">
-          <option value="">الكل</option>
-          <option value="AVAILABLE">متوفر</option>
-          <option value="LOW_STOCK">كمية محدودة</option>
-          <option value="OUT_OF_STOCK">غير متوفر</option>
-        </select>
-      </div>
-      <button onClick={apply} className="btn-primary">تطبيق</button>
     </div>
   );
 }

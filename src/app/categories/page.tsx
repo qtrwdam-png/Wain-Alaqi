@@ -18,13 +18,13 @@ export default async function CategoriesPage() {
   }
 
   return (
-    <div className="container-app py-10">
-      <h1 className="text-3xl font-extrabold text-gray-900">القطاعات</h1>
+    <div className="container-app py-8 sm:py-10">
+      <h1 className="text-2xl font-extrabold text-gray-900 sm:text-3xl">القطاعات</h1>
       <p className="mt-2 text-gray-500">تصفح المتاجر حسب القطاع في الرمثا.</p>
-      <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
         {categories.map((c) => (
-          <Link key={c.id} href={`/categories/${c.slug}`} className="card group flex flex-col items-center justify-center p-5 text-center transition hover:shadow-card-hover">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-50 text-2xl text-brand-600 transition group-hover:bg-brand-100">
+          <Link key={c.id} href={`/categories/${c.slug}`} className="card group flex flex-col items-center justify-center p-4 text-center transition hover:shadow-card-hover sm:p-5">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-xl text-brand-600 transition group-hover:bg-brand-100 sm:h-14 sm:w-14 sm:text-2xl">
               {c.icon || "🏷️"}
             </div>
             <h3 className="mt-3 text-sm font-bold text-gray-900">{c.name}</h3>

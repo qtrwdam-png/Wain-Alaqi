@@ -11,13 +11,13 @@ export default async function ContactPage() {
     // DB not ready
   }
   return (
-    <div className="container-app py-10">
-      <h1 className="text-3xl font-extrabold text-gray-900">تواصل معنا</h1>
-      <div className="card mt-6 max-w-lg p-6">
+    <div className="container-app py-8 sm:py-10">
+      <h1 className="text-2xl font-extrabold text-gray-900 sm:text-3xl">تواصل معنا</h1>
+      <div className="card mt-6 max-w-lg p-5 sm:p-6">
         <p className="text-gray-600">لأي استفسار أو ملاحظة، تواصل معنا عبر:</p>
         <div className="mt-4 space-y-2 text-sm">
-          <p>📧 {contact.email || "info@wain-alaqi.test"}</p>
-          <p>📞 {contact.phone || "—"}</p>
+          <p className="break-all">📧 {contact.email || "info@wain-alaqi.test"}</p>
+          <p dir="ltr" className="text-right">📞 {contact.phone || "—"}</p>
         </div>
       </div>
     </div>

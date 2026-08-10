@@ -32,20 +32,20 @@ export default async function AccountHomePage() {
   const isStoreOwner = role === "STORE_OWNER";
 
   return (
-    <div className="container-app py-10">
+    <div className="container-app py-8 sm:py-10">
       <div className="mx-auto max-w-3xl">
         {/* Header */}
-        <div className="card flex items-center gap-4 p-6">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-100 text-xl font-bold text-brand-700">
+        <div className="card flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:p-6">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xl font-bold text-brand-700">
             {user.name?.charAt(0) || "؟"}
           </div>
-          <div className="flex-1">
-            <h1 className="text-2xl font-extrabold text-gray-900">{user.name}</h1>
-            <p className="text-sm text-gray-500">
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-xl font-extrabold text-gray-900 sm:text-2xl">{user.name}</h1>
+            <p className="truncate text-sm text-gray-500">
               {ROLE_LABELS[role] || role} · {user.email}
             </p>
           </div>
-          <Link href="/account/settings" className="btn-secondary">⚙️ إعدادات الحساب</Link>
+          <Link href="/account/settings" className="btn-secondary shrink-0">⚙️ إعدادات الحساب</Link>
         </div>
 
         {/* Role-based shortcuts */}

@@ -46,13 +46,13 @@ export function ContentEditorClient({ content }: { content: Record<string, any> 
   return (
     <div className="mt-6 grid gap-6 lg:grid-cols-[220px_1fr]">
       <div className="card h-fit p-3">
-        <nav className="space-y-1">
+        <nav className="nav-scroll lg:block lg:space-y-1">
           {KEYS.map((k) => (
-            <button key={k.key} onClick={() => load(k.key)} className={`nav-link w-full text-right ${active === k.key ? "nav-link-active" : ""}`}>{k.label}</button>
+            <button key={k.key} onClick={() => load(k.key)} className={`nav-link shrink-0 whitespace-nowrap lg:w-full lg:text-right ${active === k.key ? "nav-link-active" : ""}`}>{k.label}</button>
           ))}
         </nav>
       </div>
-      <div className="card p-6">
+      <div className="card min-w-0 p-4 sm:p-6">
         <h2 className="mb-3 font-bold">{KEYS.find((k) => k.key === active)?.label}</h2>
         {KEYS.find((k) => k.key === active)?.type === "textarea" ? (
           <textarea className="input min-h-[200px]" value={value} onChange={(e) => setValue(e.target.value)} />

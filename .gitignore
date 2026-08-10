@@ -43,3 +43,6 @@ next-env.d.ts
 
 # logs
 *.log
+
+# k6 load test scripts (keep local, run on demand)
+loadtest/

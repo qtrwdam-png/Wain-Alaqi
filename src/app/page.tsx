@@ -49,15 +49,15 @@ export default async function HomePage() {
     <div>
       {/* Hero */}
       <section className="bg-gradient-to-b from-brand-50 to-white">
-        <div className="container-app py-12 sm:py-20">
+        <div className="container-app py-10 sm:py-20">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-4 inline-flex items-center gap-1 rounded-full bg-brand-100 px-3 py-1 text-sm text-brand-700">
+            <div className="mb-4 inline-flex items-center gap-1 rounded-full bg-brand-100 px-3 py-1 text-xs text-brand-700 sm:text-sm">
               📍 الرمثا، الأردن
             </div>
-            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-6xl">
+            <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
               {APP_NAME}
             </h1>
-            <p className="mt-4 text-lg text-gray-600 sm:text-xl">
+            <p className="mx-auto mt-4 max-w-2xl text-base text-gray-600 sm:text-xl">
               {hero.description || APP_TAGLINE}
             </p>
             <div className="mt-8">
@@ -84,14 +84,14 @@ export default async function HomePage() {
       </section>
 
       {/* Categories */}
-      <section className="container-app py-12">
+      <section className="container-app py-10 sm:py-12">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">القطاعات</h2>
+          <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">القطاعات</h2>
           <Link href="/categories" className="text-sm font-medium text-brand-700 hover:underline">
             عرض الكل
           </Link>
         </div>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
           {categories.map((c) => (
             <CategoryCard key={c.id} category={c} />
           ))}
@@ -100,15 +100,15 @@ export default async function HomePage() {
 
       {/* Featured stores */}
       {featuredStores.length > 0 && (
-        <section className="bg-gray-50 py-12">
+        <section className="bg-gray-50 py-10 sm:py-12">
           <div className="container-app">
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">متاجر مميزة</h2>
+              <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">متاجر مميزة</h2>
               <Link href="/stores" className="text-sm font-medium text-brand-700 hover:underline">
                 عرض الكل
               </Link>
             </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
               {featuredStores.map((s) => (
                 <StoreCard key={s.id} store={s as any} />
               ))}
@@ -118,11 +118,11 @@ export default async function HomePage() {
       )}
 
       {/* CTA */}
-      <section className="container-app py-12">
-        <div className="overflow-hidden rounded-2xl bg-brand-700 px-6 py-12 text-center text-white sm:px-12">
-          <h2 className="text-2xl font-bold sm:text-3xl">هل لديك متجر؟</h2>
+      <section className="container-app py-10 sm:py-12">
+        <div className="overflow-hidden rounded-2xl bg-brand-700 px-5 py-10 text-center text-white sm:px-12 sm:py-12">
+          <h2 className="text-xl font-bold sm:text-3xl">هل لديك متجر؟</h2>
           <p className="mt-2 text-brand-100">أضف متجرك مجانًا واصل لعملاء الرمثا.</p>
-          <Link href="/add-store" className="mt-6 inline-block rounded-lg bg-white px-6 py-3 font-bold text-brand-700 hover:bg-brand-50">
+          <Link href="/add-store" className="btn-primary mt-6 inline-block bg-white text-brand-700 hover:bg-brand-50">
             أضف متجرك مجانًا
           </Link>
         </div>

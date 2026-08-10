@@ -97,9 +97,9 @@ export function ReviewsSection({ storeId, storeSlug }: { storeId: string; storeS
         <div className="space-y-3">
           {reviews.map((r) => (
             <div key={r.id} className="card p-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                 <span className="font-bold text-gray-800">{r.user.name}</span>
-                <span className="text-amber-400">{"★".repeat(r.rating)}<span className="text-gray-200">{"★".repeat(5 - r.rating)}</span></span>
+                <span className="text-amber-400 ltr-num">{"★".repeat(r.rating)}<span className="text-gray-200">{"★".repeat(5 - r.rating)}</span></span>
               </div>
               {r.comment && <p className="mt-2 text-sm text-gray-600">{r.comment}</p>}
               <p className="mt-2 text-xs text-gray-400">{new Date(r.createdAt).toLocaleDateString("ar")}</p>
