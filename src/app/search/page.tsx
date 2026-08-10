@@ -4,6 +4,7 @@ import { AVAILABILITY_LABELS } from "@/config/constants";
 import { formatPrice, formatDistance, timeAgo } from "@/lib/utils";
 import Link from "next/link";
 import { SearchResultsClient } from "@/components/search-results-client";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -23,9 +24,9 @@ export default async function SearchPage({ searchParams }: { searchParams: SP })
     lng: searchParams.lng ? Number(searchParams.lng) : undefined,
   };
 
-  const categories = await prisma.category.findMany({ where: { active: true }, orderBy: { sortOrder: "asc" } });
+  const categories = await prisma.category.findMany({ where: { active: true }, orderBy: { sortOrder: "asc" } }).catch(() => []);
 
-  const results = q ? await searchProducts(q, filters) : [];
+  const results = q ? await searchProducts(q, filters).catch(() => []) : [];
 
   return (
     <div className="container-app py-8">
@@ -36,7 +37,9 @@ export default async function SearchPage({ searchParams }: { searchParams: SP })
       )}
       <p className="mt-1 text-sm text-gray-500">{results.length} نتيجة</p>
 
-      <SearchResultsClient q={q} categories={categories} searchParams={searchParams} />
+      <Suspense fallback={<div className="mt-4 text-sm text-gray-400">جارٍ التحميل…</div>}>
+        <SearchResultsClient q={q} categories={categories} searchParams={searchParams} />
+      </Suspense>
 
       {!q ? (
         <p className="mt-8 rounded-lg bg-gray-50 p-8 text-center text-gray-500">اكتب كلمة بحث للبدء.</p>

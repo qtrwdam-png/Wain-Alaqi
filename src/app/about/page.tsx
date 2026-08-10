@@ -4,8 +4,14 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "عن المنصة", description: "نبذة عن منصة وين ألاقي؟" };
 
 export default async function AboutPage() {
-  const about = await Content.get("about");
-  const faq = await Content.get("faq");
+  let about: any = { title: "عن المنصة", body: "وين ألاقي؟ منصة محلية تساعدك على العثور على المنتجات والخدمات والمتاجر في الرمثا، الأردن." };
+  let faq: any = [];
+  try {
+    about = await Content.get("about");
+    faq = await Content.get("faq");
+  } catch {
+    // DB not ready
+  }
   return (
     <div className="container-app py-10">
       <h1 className="text-3xl font-extrabold text-gray-900">{about.title || "عن المنصة"}</h1>

@@ -4,7 +4,12 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "تواصل معنا" };
 
 export default async function ContactPage() {
-  const contact = await Content.get("contact");
+  let contact: any = { email: "info@wain-alaqi.test", phone: "—" };
+  try {
+    contact = await Content.get("contact");
+  } catch {
+    // DB not ready
+  }
   return (
     <div className="container-app py-10">
       <h1 className="text-3xl font-extrabold text-gray-900">تواصل معنا</h1>

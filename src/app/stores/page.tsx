@@ -11,10 +11,16 @@ export default async function StoresPage({ searchParams }: { searchParams: { cat
     ...(searchParams.cat ? { categoryId: searchParams.cat } : {}),
     ...(searchParams.q ? { name: { contains: searchParams.q, mode: "insensitive" as const } } : {}),
   };
-  const [stores, categories] = await Promise.all([
-    prisma.store.findMany({ where, include: { category: true }, orderBy: { rating: "desc" } }),
-    prisma.category.findMany({ where: { active: true }, orderBy: { sortOrder: "asc" } }),
-  ]);
+  let stores: any[] = [];
+  let categories: any[] = [];
+  try {
+    [stores, categories] = await Promise.all([
+      prisma.store.findMany({ where, include: { category: true }, orderBy: { rating: "desc" } }),
+      prisma.category.findMany({ where: { active: true }, orderBy: { sortOrder: "asc" } }),
+    ]);
+  } catch {
+    // DB not ready
+  }
 
   return (
     <div className="container-app py-10">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
 import { SearchBox } from "@/components/search-box";
 import { APP_NAME, APP_TAGLINE } from "@/config/constants";
@@ -23,16 +24,23 @@ async function getPopularSearches() {
 }
 
 export default async function HomePage() {
-  const [categories, featuredStores, popular] = await Promise.all([
-    prisma.category.findMany({ where: { active: true }, orderBy: { sortOrder: "asc" } }),
-    prisma.store.findMany({
-      where: { status: "APPROVED", isFeatured: true },
-      take: 8,
-      orderBy: { rating: "desc" },
-      include: { category: true },
-    }),
-    getPopularSearches(),
-  ]);
+  let categories: any[] = [];
+  let featuredStores: any[] = [];
+  let popular: string[] = [];
+  try {
+    [categories, featuredStores, popular] = await Promise.all([
+      prisma.category.findMany({ where: { active: true }, orderBy: { sortOrder: "asc" } }),
+      prisma.store.findMany({
+        where: { status: "APPROVED", isFeatured: true },
+        take: 8,
+        orderBy: { rating: "desc" },
+        include: { category: true },
+      }),
+      getPopularSearches(),
+    ]);
+  } catch {
+    // DB not ready — render with empty data
+  }
 
   const hero = await Content.getHomeHero();
   const popularDefault = popular.length ? popular : ["بطارية كيا سيراتو", "شاحن آيفون 20 واط", "سباك", "قطع غيار تويوتا", "دهانات"];
@@ -53,7 +61,9 @@ export default async function HomePage() {
               {hero.description || APP_TAGLINE}
             </p>
             <div className="mt-8">
-              <SearchBox />
+              <Suspense fallback={<div className="h-14 text-gray-400">جارٍ التحميل…</div>}>
+                <SearchBox />
+              </Suspense>
             </div>
             {popularDefault.length > 0 && (
               <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-sm">

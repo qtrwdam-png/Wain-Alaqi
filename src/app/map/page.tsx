@@ -5,12 +5,18 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "خريطة المتاجر", description: "تصفح المتاجر على الخريطة" };
 
 export default async function MapPage() {
-  const city = await prisma.city.findFirst({ where: { slug: "al-ramtha" } }) ||
-    await prisma.city.findFirst();
-  const stores = await prisma.store.findMany({
-    where: { status: "APPROVED", latitude: { not: null }, longitude: { not: null } },
-    select: { slug: true, name: true, latitude: true, longitude: true, address: true, phone: true },
-  });
+  let city: any = null;
+  let stores: any[] = [];
+  try {
+    city = await prisma.city.findFirst({ where: { slug: "al-ramtha" } }) ||
+      await prisma.city.findFirst();
+    stores = await prisma.store.findMany({
+      where: { status: "APPROVED", latitude: { not: null }, longitude: { not: null } },
+      select: { slug: true, name: true, latitude: true, longitude: true, address: true, phone: true },
+    });
+  } catch {
+    // DB not ready
+  }
 
   const centerLat = city?.latitude || stores[0]?.latitude || 32.5567;
   const centerLng = city?.longitude || stores[0]?.longitude || 36.0;

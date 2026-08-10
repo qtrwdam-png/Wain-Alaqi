@@ -6,11 +6,16 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "القطاعات", description: "تصفح القطاعات في الرمثا" };
 
 export default async function CategoriesPage() {
-  const categories = await prisma.category.findMany({
-    where: { active: true },
-    orderBy: { sortOrder: "asc" },
-    include: { _count: { select: { stores: { where: { status: "APPROVED" } } } } },
-  });
+  let categories: any[] = [];
+  try {
+    categories = await prisma.category.findMany({
+      where: { active: true },
+      orderBy: { sortOrder: "asc" },
+      include: { _count: { select: { stores: { where: { status: "APPROVED" } } } } },
+    });
+  } catch {
+    // DB not ready
+  }
 
   return (
     <div className="container-app py-10">

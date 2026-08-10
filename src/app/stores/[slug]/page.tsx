@@ -26,14 +26,19 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 export default async function StorePage({ params }: { params: { slug: string } }) {
   const slug = decodeURIComponent(params.slug);
-  const store = await prisma.store.findUnique({
-    where: { slug },
-    include: {
-      category: true,
-      owner: { select: { name: true } },
-      products: { where: { active: true }, orderBy: { updatedAt: "desc" } },
-    },
-  });
+  let store: any = null;
+  try {
+    store = await prisma.store.findUnique({
+      where: { slug },
+      include: {
+        category: true,
+        owner: { select: { name: true } },
+        products: { where: { active: true }, orderBy: { updatedAt: "desc" } },
+      },
+    });
+  } catch {
+    // DB not ready
+  }
   if (!store || store.status !== "APPROVED") notFound();
 
   // increment views (fire and forget)
@@ -89,7 +94,7 @@ export default async function StorePage({ params }: { params: { slug: string } }
                 <p className="rounded-lg bg-gray-50 p-6 text-center text-gray-500">لا توجد منتجات بعد.</p>
               ) : (
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-                  {store.products.map((p) => (
+                  {store.products.map((p: any) => (
                     <div key={p.id} className="card overflow-hidden">
                       <div className="aspect-square bg-gray-50">
                         {p.image ? <img src={p.image} alt={p.name} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-3xl text-gray-300">📦</div>}

@@ -16,17 +16,22 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function CategoryPage({ params }: { params: { slug: string } }) {
-  const category = await prisma.category.findUnique({
-    where: { slug: params.slug },
-    include: {
-      stores: {
-        where: { status: "APPROVED" },
-        orderBy: { rating: "desc" },
-        include: { category: true },
+  let category: any = null;
+  try {
+    category = await prisma.category.findUnique({
+      where: { slug: params.slug },
+      include: {
+        stores: {
+          where: { status: "APPROVED" },
+          orderBy: { rating: "desc" },
+          include: { category: true },
+        },
+        _count: { select: { products: { where: { active: true } } } },
       },
-      _count: { select: { products: { where: { active: true } } } },
-    },
-  });
+    });
+  } catch {
+    // DB not ready
+  }
   if (!category) notFound();
 
   return (
@@ -63,7 +68,7 @@ export default async function CategoryPage({ params }: { params: { slug: string 
           <p className="rounded-lg bg-gray-50 p-8 text-center text-gray-500">لا توجد متاجر في هذا القطاع بعد.</p>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {category.stores.map((s) => (
+            {category.stores.map((s: any) => (
               <StoreCard key={s.id} store={s as any} />
             ))}
           </div>

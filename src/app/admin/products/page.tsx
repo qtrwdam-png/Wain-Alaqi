@@ -3,6 +3,7 @@ import { AVAILABILITY_LABELS } from "@/config/constants";
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import { AdminProductsFilters } from "@/components/admin-products-filters";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "إدارة المنتجات" };
@@ -21,7 +22,9 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
   return (
     <div>
       <h1 className="text-2xl font-extrabold text-gray-900">إدارة المنتجات ({products.length})</h1>
-      <AdminProductsFilters categories={categories} stores={stores} current={searchParams} />
+      <Suspense fallback={<div className="mt-4 text-sm text-gray-400">جارٍ التحميل…</div>}>
+        <AdminProductsFilters categories={categories} stores={stores} current={searchParams} />
+      </Suspense>
       <div className="mt-4 overflow-x-auto">
         <table className="w-full text-right text-sm">
           <thead className="border-b text-gray-400"><tr><th className="p-2">المنتج</th><th className="p-2">المتجر</th><th className="p-2">القطاع</th><th className="p-2">السعر</th><th className="p-2">التوفر</th><th className="p-2">الحالة</th></tr></thead>

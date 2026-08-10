@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function EditProductPage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const router = useRouter();
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [form, setForm] = useState<any>(null);
@@ -14,13 +14,21 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   useEffect(() => {
     Promise.all([
       fetch("/api/categories").then((r) => r.json()),
-      fetch(`/api/admin/products?storeId=all`).then((r) => r.json()),
-    ]).then(async ([c, _]) => {
+      fetch(`/api/admin/products`).then((r) => r.json()),
+    ]).then(([c, pData]) => {
       setCategories(c.categories || []);
-      const pRes = await fetch("/api/admin/products");
-      const pData = await pRes.json();
       const product = (pData.products || []).find((x: any) => x.id === id);
-      if (product) setForm({ name: product.name, categoryId: product.categoryId || "", description: product.description || "", price: product.price ?? "", availability: product.availability, image: product.image || "", active: product.active });
+      if (product) {
+        setForm({
+          name: product.name,
+          categoryId: product.categoryId || "",
+          description: product.description || "",
+          price: product.price ?? "",
+          availability: product.availability,
+          image: product.image || "",
+          active: product.active,
+        });
+      }
     });
   }, [id]);
 
