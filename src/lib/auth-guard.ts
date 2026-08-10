@@ -24,8 +24,13 @@ export async function requireAdmin() {
   return requireRole(["ADMIN"]);
 }
 
+// Staff routes live under /admin — send unauthenticated visitors to the
+// dedicated admin login instead of the public one.
 export async function requireStaff() {
-  return requireRole(["ADMIN", "CONTENT_MANAGER"]);
+  const user = await getCurrentUser();
+  if (!user) redirect("/admin/login");
+  if (!["ADMIN", "CONTENT_MANAGER"].includes(user.role as Role)) redirect("/unauthorized");
+  return user;
 }
 
 export async function requireStoreOwner() {

@@ -15,6 +15,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "يجب تسجيل الدخول أولاً" }, { status: 401 });
     }
 
+    // Staff members manage stores from the admin panel; they should not
+    // self-register a store through the public flow.
+    if (session.user.role === "ADMIN" || session.user.role === "CONTENT_MANAGER") {
+      return NextResponse.json({ error: "لا يمكن لمدير المنصة إنشاء متجر عبر هذه الصفحة. استخدم لوحة الإدارة." }, { status: 403 });
+    }
+
     const body = await req.json();
     const parsed = storeRegistrationSchema.safeParse(body);
     if (!parsed.success) {
@@ -22,7 +28,7 @@ export async function POST(req: Request) {
     }
     const d = parsed.data;
 
-    // Check if user already owns a store
+    // Check if user already owns a store (one store per owner).
     const existingStore = await prisma.store.findFirst({ where: { ownerId: session.user.id } });
     if (existingStore) {
       return NextResponse.json({ error: "لديك متجر مسجل بالفعل" }, { status: 409 });

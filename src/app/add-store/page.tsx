@@ -19,6 +19,9 @@ export default function AddStorePage() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const role = (session?.user as any)?.role as string | undefined;
+  const isStaff = role === "ADMIN" || role === "CONTENT_MANAGER";
+
   useEffect(() => {
     Promise.all([
       fetchWithRetry("/api/categories").then((r) => r.json()),
@@ -64,6 +67,20 @@ export default function AddStorePage() {
     );
   }
 
+  // Staff manage stores from the admin panel — block the public flow.
+  if (isStaff) {
+    return (
+      <div className="container-app py-16">
+        <div className="mx-auto max-w-md text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-100 text-3xl">🛡️</div>
+          <h1 className="text-2xl font-extrabold text-gray-900">إدارة المتاجر من لوحة الإدارة</h1>
+          <p className="mt-2 text-gray-500">حسابك الإداري لا ينشئ متجراً عبر هذه الصفحة. أدِر المتاجر من لوحة الإدارة.</p>
+          <Link href="/admin/stores" className="btn-primary mt-6 inline-block">الذهاب إلى لوحة الإدارة</Link>
+        </div>
+      </div>
+    );
+  }
+
   if (success) {
     return (
       <div className="container-app py-20 text-center">
@@ -82,6 +99,13 @@ export default function AddStorePage() {
       <div className="mx-auto max-w-2xl">
         <h1 className="text-3xl font-extrabold text-gray-900">أضف متجرك</h1>
         <p className="mt-2 text-gray-500">املأ النموذج، وسيتم مراجعة طلبك من إدارة المنصة قبل ظهوره للعامة.</p>
+
+        {role === "USER" && (
+          <div className="mt-4 rounded-lg bg-brand-50 p-4 text-sm text-brand-800 ring-1 ring-brand-200">
+            <p className="font-bold">ℹ️ ستتحول إلى تاجر</p>
+            <p className="mt-1">بإنشاء متجر سيتحول حسابك إلى «تاجر» ويظهر لك زر «لوحة المتجر» لإدارة منتجاتك وإعدادات متجرك. يمكن متابعة حسابك من صفحة «حسابي».</p>
+          </div>
+        )}
 
         <form onSubmit={submit} className="mt-8 space-y-8">
           <fieldset className="card space-y-4 p-6">

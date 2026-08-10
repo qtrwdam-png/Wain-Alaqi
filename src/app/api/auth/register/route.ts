@@ -16,6 +16,8 @@ export async function POST(req: Request) {
     if (exists) {
       return NextResponse.json({ error: "البريد الإلكتروني مستخدم بالفعل" }, { status: 409 });
     }
+    // Public registration always creates a regular USER account. Staff/admin
+    // accounts can only be created by an existing admin from the admin panel.
     const hash = await bcrypt.hash(password, 12);
     const user = await prisma.user.create({
       data: { name, email: email.toLowerCase(), phone, passwordHash: hash, role: "USER" },

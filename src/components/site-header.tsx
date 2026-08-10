@@ -28,6 +28,14 @@ export function SiteHeader() {
   }, [pathname]);
 
   const isAuthed = status === "authenticated" && !!session?.user;
+  const role = (session?.user as any)?.role as string | undefined;
+  const isAdmin = role === "ADMIN";
+  const isStaff = role === "ADMIN" || role === "CONTENT_MANAGER";
+  const isStoreOwner = role === "STORE_OWNER";
+  // A regular user (or anyone) can become a store owner by adding a store.
+  const canAddStore = isAuthed && (role === "USER" || isStoreOwner);
+  const showStoreDashboard = isStoreOwner || isAdmin;
+  const showAdminPanel = isStaff;
 
   return (
     <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/95 backdrop-blur">
@@ -55,18 +63,21 @@ export function SiteHeader() {
               <>
                 <NotificationBell />
                 <div className="hidden items-center gap-1 sm:flex">
-                  {session.user.role === "ADMIN" && (
-                    <Link href="/admin" className="btn-secondary">لوحة الإدارة</Link>
+                  {showAdminPanel && (
+                    <Link href="/admin" className="btn-secondary">🛡️ لوحة الإدارة</Link>
                   )}
-                  {(session.user.role === "STORE_OWNER" || session.user.role === "ADMIN") && (
-                    <Link href="/dashboard/store" className="btn-secondary">لوحة التاجر</Link>
+                  {showStoreDashboard && (
+                    <Link href="/dashboard/store" className="btn-secondary">🏪 لوحة المتجر</Link>
                   )}
                   <Link href="/account/settings" className="btn-ghost">حسابي</Link>
                   <button onClick={() => signOut({ callbackUrl: "/" })} className="btn-ghost text-red-600">خروج</button>
                 </div>
               </>
             ) : (
-              <Link href="/login" className="btn-primary hidden sm:inline-flex">تسجيل الدخول</Link>
+              <>
+                <Link href="/login" className="btn-primary hidden sm:inline-flex">تسجيل الدخول</Link>
+                <Link href="/register" className="btn-secondary hidden sm:inline-flex">حساب جديد</Link>
+              </>
             )}
 
             <button
@@ -94,11 +105,14 @@ export function SiteHeader() {
             <div className="my-2 border-t border-gray-100" />
             {isAuthed ? (
               <>
-                <Link href="/account/settings" className="nav-link">⚙️ إعدادات الحساب</Link>
-                {(session.user.role === "STORE_OWNER" || session.user.role === "ADMIN") && (
-                  <Link href="/dashboard/store" className="nav-link">📊 لوحة التاجر</Link>
+                <Link href="/account/settings" className="nav-link">👤 إعدادات الحساب</Link>
+                {canAddStore && (
+                  <Link href="/add-store" className="nav-link">🏪 أضف متجرك</Link>
                 )}
-                {session.user.role === "ADMIN" && (
+                {showStoreDashboard && (
+                  <Link href="/dashboard/store" className="nav-link">📊 لوحة المتجر</Link>
+                )}
+                {showAdminPanel && (
                   <Link href="/admin" className="nav-link">🛡️ لوحة الإدارة</Link>
                 )}
                 <button onClick={() => signOut({ callbackUrl: "/" })} className="nav-link text-right text-red-600">🚪 تسجيل الخروج</button>
