@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-
-declare global {
-  interface Window { L: any }
-}
+import "leaflet/dist/leaflet.css";
 
 // Center on Ar-Ramtha, Jordan
 const RAMTHA_CENTER: [number, number] = [32.5569, 36.0042];
@@ -27,26 +24,23 @@ export function LocationPickerMap({
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
+    if (!ref.current) return;
     let cancelled = false;
-    async function init() {
-      if (typeof window === "undefined") return;
-      if (!window.L) {
-        await new Promise<void>((resolve, reject) => {
-          const link = document.createElement("link");
-          link.rel = "stylesheet";
-          link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-          document.head.appendChild(link);
-          const s = document.createElement("script");
-          s.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-          s.onload = () => resolve();
-          s.onerror = () => reject(new Error("leaflet load failed"));
-          document.head.appendChild(s);
-        });
-      }
+
+    import("leaflet").then(async (Lmod) => {
+      const L = Lmod.default;
+      // Fix default marker icon paths broken by bundling (Leaflet looks up relative URLs).
+      const markerIcon = await import("leaflet/dist/images/marker-icon.png");
+      const markerIcon2x = await import("leaflet/dist/images/marker-icon-2x.png");
+      const markerShadow = await import("leaflet/dist/images/marker-shadow.png");
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: markerIcon2x.default.src,
+        iconUrl: markerIcon.default.src,
+        shadowUrl: markerShadow.default.src,
+      });
       if (cancelled || !ref.current) return;
       if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
 
-      const L = window.L;
       const startLat = latitude || RAMTHA_CENTER[0];
       const startLng = longitude || RAMTHA_CENTER[1];
       const map = L.map(ref.current).setView([startLat, startLng], 14);
@@ -60,17 +54,15 @@ export function LocationPickerMap({
       markerRef.current = marker;
 
       marker.on("dragend", () => {
-        const ll = marker.getLatLng();
         setSaved(false);
-        // keep marker, just mark unsaved
       });
 
       map.on("click", (e: any) => {
         marker.setLatLng(e.latlng);
         setSaved(false);
       });
-    }
-    init().catch(console.error);
+    }).catch(console.error);
+
     return () => {
       cancelled = true;
       if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }

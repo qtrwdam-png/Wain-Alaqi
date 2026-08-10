@@ -80,8 +80,8 @@ export default async function SearchPage({ searchParams }: { searchParams: SP })
                 </div>
                 <div className="flex shrink-0 flex-wrap gap-2">
                   {phoneHref && <a href={phoneHref} className="btn-secondary text-xs">اتصل</a>}
-                  {waHref && <a href={waHref} target="_blank" rel="noreferrer" className="btn-accent text-xs">واتساب</a>}
-                  {dirHref && <a href={dirHref} target="_blank" rel="noreferrer" className="btn-ghost text-xs">الاتجاهات</a>}
+                  {waHref && <a href={waHref} target="_blank" rel="noopener noreferrer" className="btn-accent text-xs">واتساب</a>}
+                  {dirHref && <a href={dirHref} target="_blank" rel="noopener noreferrer" className="btn-ghost text-xs">الاتجاهات</a>}
                 </div>
               </div>
             );
