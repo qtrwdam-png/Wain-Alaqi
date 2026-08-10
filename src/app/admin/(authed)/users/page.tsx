@@ -11,7 +11,7 @@ export default async function AdminUsersPage() {
   });
   return (
     <div>
-      <h1 className="text-2xl font-extrabold text-gray-900">إدارة المستخدمين ({users.length})</h1>
+      <h1 className="text-xl font-extrabold text-gray-900 sm:text-2xl">إدارة المستخدمين ({users.length})</h1>
       <AdminUsersClient users={users.map((u) => ({ ...u, createdAt: u.createdAt.toISOString() }))} />
     </div>
   );

@@ -19,23 +19,28 @@ export function AdminSidebar() {
   const pathname = usePathname();
   return (
     <>
-      {/* Mobile: horizontal scrollable nav */}
+      {/* Mobile: icon grid (app-style) */}
       <aside className="card h-fit p-3 lg:hidden">
-        <div className="mb-2 flex items-center justify-between gap-2 border-b pb-2">
+        <div className="mb-3 flex items-center justify-between gap-2 border-b pb-2">
           <p className="text-xs text-gray-400">لوحة الإدارة</p>
           <p className="font-bold text-brand-700">CMS</p>
         </div>
-        <nav className="nav-scroll">
+        <nav className="grid grid-cols-3 gap-2">
           {NAV.map((l) => {
             const active = l.href === "/admin" ? pathname === l.href : pathname.startsWith(l.href);
             return (
-              <Link key={l.href} href={l.href} className={`nav-link flex shrink-0 items-center gap-2 whitespace-nowrap ${active ? "nav-link-active" : ""}`}>
-                <span>{l.icon}</span> {l.label}
+              <Link
+                key={l.href}
+                href={l.href}
+                className={`flex flex-col items-center gap-1 rounded-lg p-2.5 text-center text-xs font-medium transition ${active ? "bg-brand-50 text-brand-700 ring-1 ring-brand-200" : "text-gray-600 hover:bg-gray-50"}`}
+              >
+                <span className="text-xl leading-none">{l.icon}</span>
+                {l.label}
               </Link>
             );
           })}
-          <Link href="/" className="nav-link flex shrink-0 items-center gap-2 whitespace-nowrap">← الموقع</Link>
         </nav>
+        <Link href="/" className="mt-2 flex items-center justify-center gap-1 border-t pt-2.5 text-xs text-gray-500 hover:text-brand-700">← العودة للموقع</Link>
       </aside>
 
       {/* Desktop: sticky sidebar */}

@@ -12,7 +12,7 @@ export default async function AdminReviewsPage() {
   });
   return (
     <div>
-      <h1 className="text-2xl font-extrabold text-gray-900">إدارة التقييمات ({reviews.length})</h1>
+      <h1 className="text-xl font-extrabold text-gray-900 sm:text-2xl">إدارة التقييمات ({reviews.length})</h1>
       <AdminReviewsClient reviews={reviews.map((r) => ({ id: r.id, rating: r.rating, comment: r.comment, status: r.status, storeName: r.store.name, storeSlug: r.store.slug, userName: r.user.name, createdAt: r.createdAt.toISOString() }))} />
     </div>
   );

@@ -21,7 +21,7 @@ export default async function AdminStoresPage({ searchParams }: { searchParams: 
 
   return (
     <div>
-      <h1 className="text-2xl font-extrabold text-gray-900">إدارة المتاجر</h1>
+      <h1 className="text-xl font-extrabold text-gray-900 sm:text-2xl">إدارة المتاجر</h1>
       <Suspense fallback={<div className="mt-4 text-sm text-gray-400">جارٍ التحميل…</div>}>
         <StoresListClient currentStatus={searchParams.status || ""} q={searchParams.q || ""} statuses={statuses} labels={STORE_STATUS_LABELS} />
       </Suspense>

@@ -21,7 +21,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
 
   return (
     <div>
-      <h1 className="text-2xl font-extrabold text-gray-900">إدارة المنتجات ({products.length})</h1>
+      <h1 className="text-xl font-extrabold text-gray-900 sm:text-2xl">إدارة المنتجات ({products.length})</h1>
       <Suspense fallback={<div className="mt-4 text-sm text-gray-400">جارٍ التحميل…</div>}>
         <AdminProductsFilters categories={categories} stores={stores} current={searchParams} />
       </Suspense>

@@ -73,7 +73,7 @@ export function AccountSettingsForm({ profile }: { profile: Profile }) {
   return (
     <div className="container-app py-10">
       <div className="mx-auto max-w-2xl">
-        <h1 className="text-2xl font-extrabold text-gray-900">إعدادات الحساب</h1>
+        <h1 className="text-xl font-extrabold text-gray-900 sm:text-2xl">إعدادات الحساب</h1>
         <p className="mt-1 text-sm text-gray-500">قم بتعديل بياناتك الشخصية وكلمة المرور.</p>
 
         <div className="card mt-6 flex items-center gap-4 p-4">

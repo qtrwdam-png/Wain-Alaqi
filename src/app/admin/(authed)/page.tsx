@@ -33,19 +33,19 @@ export default async function AdminDashboard() {
 
   return (
     <div>
-      <h1 className="text-2xl font-extrabold text-gray-900">لوحة الإدارة</h1>
-      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <h1 className="text-xl font-extrabold text-gray-900 sm:text-2xl">لوحة الإدارة</h1>
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-4 lg:grid-cols-4">
         {stats.map((s) => (
-          <div key={s.label} className="card p-5">
-            <p className="text-sm text-gray-400">{s.label}</p>
-            <p className={`mt-1 text-2xl font-extrabold ${s.color}`}>{s.value}</p>
+          <div key={s.label} className="card p-3 sm:p-5">
+            <p className="text-xs text-gray-400 sm:text-sm">{s.label}</p>
+            <p className={`mt-1 text-xl font-extrabold sm:text-2xl ${s.color}`}>{s.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="mt-8">
+      <div className="mt-6 sm:mt-8">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold">متاجر بانتظار المراجعة</h2>
+          <h2 className="text-base font-bold sm:text-lg">متاجر بانتظار المراجعة</h2>
           <Link href="/admin/stores?status=PENDING_REVIEW" className="text-sm text-brand-700 hover:underline">عرض الكل</Link>
         </div>
         {pendingStores.length === 0 ? (

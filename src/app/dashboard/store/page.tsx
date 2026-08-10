@@ -35,7 +35,7 @@ export default async function StoreDashboardHome() {
 
   return (
     <div>
-      <h1 className="text-2xl font-extrabold text-gray-900">نظرة عامة</h1>
+      <h1 className="text-xl font-extrabold text-gray-900 sm:text-2xl">نظرة عامة</h1>
       {store.status === "PENDING_REVIEW" && (
         <div className="mt-4 rounded-lg bg-amber-50 p-4 text-sm text-amber-800 ring-1 ring-amber-200">
           <p className="font-bold">⏳ متجرك بانتظار المراجعة</p>
@@ -61,17 +61,17 @@ export default async function StoreDashboardHome() {
           <p className="mt-1">متجرك متاح للعامة. شاركه مع عملائك!</p>
         </div>
       )}
-      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-4 lg:grid-cols-4">
         {stats.map((s) => (
-          <div key={s.label} className="card p-5">
-            <p className="text-sm text-gray-400">{s.label}</p>
-            <p className="mt-1 text-2xl font-extrabold text-brand-700">{s.value}</p>
+          <div key={s.label} className="card p-3 sm:p-5">
+            <p className="text-xs text-gray-400 sm:text-sm">{s.label}</p>
+            <p className="mt-1 text-xl font-extrabold text-brand-700 sm:text-2xl">{s.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="mt-8">
-        <h2 className="mb-3 text-lg font-bold">أحدث المنتجات</h2>
+      <div className="mt-6 sm:mt-8">
+        <h2 className="mb-3 text-base font-bold sm:text-lg">أحدث المنتجات</h2>
         <div className="space-y-2">
           {products.slice(0, 5).map((p) => (
             <div key={p.id} className="card flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">

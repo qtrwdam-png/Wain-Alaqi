@@ -65,7 +65,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
 
   return (
     <div className="max-w-lg">
-      <h1 className="text-2xl font-extrabold text-gray-900">تعديل المنتج</h1>
+      <h1 className="text-xl font-extrabold text-gray-900 sm:text-2xl">تعديل المنتج</h1>
       <form onSubmit={submit} className="card mt-6 space-y-4 p-6">
         <div><label className="label">اسم المنتج *</label><input className="input" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
         <div><label className="label">القطاع</label>

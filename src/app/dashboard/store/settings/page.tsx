@@ -11,7 +11,7 @@ export default async function StoreSettingsPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-extrabold text-gray-900">إعدادات المتجر</h1>
+      <h1 className="text-xl font-extrabold text-gray-900 sm:text-2xl">إعدادات المتجر</h1>
       <StoreSettingsForm store={store} />
     </div>
   );
