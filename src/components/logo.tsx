@@ -21,7 +21,7 @@ export function Logo({ size = 36, withText = true, className = "", priority = fa
         style={{ width: size, height: size }}
       >
         <Image
-          src="/logo.svg"
+          src="/logo.png"
           alt={`${APP_NAME} شعار`}
           width={size}
           height={size}
