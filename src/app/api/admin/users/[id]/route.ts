@@ -17,6 +17,10 @@ const createStaffSchema = z.object({
 });
 
 export async function GET() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user || session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "لا تملك صلاحية" }, { status: 403 });
+  }
   const users = await prisma.user.findMany({ orderBy: { createdAt: "desc" }, select: { id: true, name: true, email: true, phone: true, role: true, active: true, isDemo: true, createdAt: true, _count: { select: { stores: true } } } });
   return NextResponse.json({ users });
 }

@@ -15,6 +15,22 @@ async function canEdit(id: string, userId: string, role: string) {
   return null;
 }
 
+// Single-product fetch used by the store-owner edit page. Verifies ownership
+// server-side: a store owner only receives their own product; any other id
+// returns 403/404, preventing IDOR via URL tampering.
+export async function GET(req: Request, { params }: Ctx) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return NextResponse.json({ error: "يجب تسجيل الدخول" }, { status: 401 });
+  try {
+    const product = await canEdit(params.id, session.user.id, session.user.role as string);
+    if (!product) return NextResponse.json({ error: "لا تملك صلاحية" }, { status: 403 });
+    return NextResponse.json({ product });
+  } catch (error) {
+    logger.error("api.admin.products.get", { error: String(error) });
+    return NextResponse.json({ error: "فشل تحميل المنتج" }, { status: 500 });
+  }
+}
+
 export async function PATCH(req: Request, { params }: Ctx) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "يجب تسجيل الدخول" }, { status: 401 });

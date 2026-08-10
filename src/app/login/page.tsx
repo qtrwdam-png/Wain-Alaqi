@@ -15,7 +15,11 @@ function homeForRole(role?: string) {
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const from = params.get("from") || "";
+  const rawFrom = params.get("from") || "";
+  // Only honor local return paths to prevent open redirects.
+  const from = rawFrom.startsWith("/") && !rawFrom.startsWith("//") && !rawFrom.startsWith("/\\")
+    ? rawFrom
+    : "";
   const registered = params.get("registered") === "1";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

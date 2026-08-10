@@ -9,9 +9,25 @@ import { logger } from "@/lib/logger";
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const session = await getServerSession(authOptions);
+  if (!session?.user) return NextResponse.json({ error: "يجب تسجيل الدخول" }, { status: 401 });
+  const role = session.user.role as string;
+
   const where: any = {};
   if (searchParams.get("storeId")) where.storeId = searchParams.get("storeId");
   if (searchParams.get("categoryId")) where.categoryId = searchParams.get("categoryId");
+
+  // Authorization: only staff see the full catalog. Store owners see their
+  // own store's products only. Regular users are denied entirely.
+  if (role === "ADMIN" || role === "CONTENT_MANAGER") {
+    // full access (filters above apply)
+  } else if (role === "STORE_OWNER") {
+    const store = await prisma.store.findFirst({ where: { ownerId: session.user.id } });
+    if (!store) return NextResponse.json({ products: [] });
+    where.storeId = store.id;
+  } else {
+    return NextResponse.json({ error: "لا تملك صلاحية" }, { status: 403 });
+  }
+
   try {
     const products = await prisma.product.findMany({
       where,

@@ -10,15 +10,24 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [form, setForm] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [denied, setDenied] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     Promise.all([
       fetchWithRetry("/api/categories").then((r) => r.json()),
-      fetch(`/api/admin/products`).then((r) => r.json()),
+      fetch(`/api/admin/products/${id}`).then(async (r) => {
+        if (r.status === 403 || r.status === 401) {
+          if (!cancelled) setDenied(true);
+          return { product: null };
+        }
+        return r.json();
+      }),
     ]).then(([c, pData]) => {
+      if (cancelled) return;
       setCategories(c.categories || []);
-      const product = (pData.products || []).find((x: any) => x.id === id);
+      const product = pData.product;
       if (product) {
         setForm({
           name: product.name,
@@ -31,6 +40,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         });
       }
     });
+    return () => { cancelled = true; };
   }, [id]);
 
   async function submit(e: React.FormEvent) {
@@ -60,6 +70,14 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
     const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
     if (res.ok) router.push("/dashboard/store/products");
   }
+
+  if (denied) return (
+    <div className="card max-w-lg p-8 text-center">
+      <p className="text-lg font-bold text-red-700">لا تملك صلاحية</p>
+      <p className="mt-2 text-sm text-gray-500">هذا المنتج لا ينتمي لمتجرك.</p>
+      <button onClick={() => router.push("/dashboard/store/products")} className="btn-secondary mt-4">العودة للمنتجات</button>
+    </div>
+  );
 
   if (!form) return <p className="text-gray-500">جارٍ التحميل…</p>;
 
