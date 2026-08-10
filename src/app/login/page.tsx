@@ -1,14 +1,21 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+
+// Default destination per role after a successful login.
+function homeForRole(role?: string) {
+  if (role === "ADMIN") return "/admin";
+  if (role === "STORE_OWNER") return "/dashboard/store";
+  return "/account";
+}
 
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const from = params.get("from") || "/";
+  const from = params.get("from") || "";
   const registered = params.get("registered") === "1";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,9 +26,12 @@ function LoginForm() {
     e.preventDefault();
     setLoading(true); setError(null);
     const res = await signIn("credentials", { email, password, redirect: false });
-    setLoading(false);
-    if (res?.error) { setError("البريد أو كلمة المرور غير صحيحة"); return; }
-    router.push(from);
+    if (res?.error) { setError("البريد أو كلمة المرور غير صحيحة"); setLoading(false); return; }
+    // Fetch the fresh session to read the role and route accordingly.
+    const session = await getSession();
+    const role = (session?.user as any)?.role as string | undefined;
+    const dest = from && from !== "/" ? from : homeForRole(role);
+    router.push(dest);
     router.refresh();
   }
 
@@ -50,11 +60,14 @@ function LoginForm() {
         </form>
         <div className="mt-6 space-y-2 text-sm text-gray-500">
           <p>حسابات تجريبية:</p>
-          <p className="font-mono text-xs">admin@example.com / ChangeMe123!</p>
-          <p className="font-mono text-xs">store1@example.com / ChangeMe123!</p>
+          <p className="font-mono text-xs">store1@example.com / ChangeMe123! (تاجر)</p>
+          <p className="font-mono text-xs">user@example.com / ChangeMe123! (مستخدم)</p>
         </div>
         <p className="mt-4 text-sm text-gray-600">
           ليس لديك حساب؟ <Link href="/register" className="text-brand-700 hover:underline">أنشئ حساباً</Link>
+        </p>
+        <p className="mt-3 border-t pt-3 text-center text-sm text-gray-500">
+          مدير المنصة؟ <Link href="/admin/login" className="font-medium text-brand-700 hover:underline">تسجيل دخول الإدارة</Link>
         </p>
       </div>
     </div>

@@ -42,3 +42,13 @@ npm run db:studio        # prisma studio
 - Next.js Route Handlers instead of separate backend (simpler Vercel/Render deploy)
 - NextAuth Credentials provider (suitable for local platform; OAuth can be added later)
 - Leaflet/OpenStreetMap (free, no API key in dev)
+
+## Auth & Routing Architecture (role-based)
+- **Role-based login redirect:** `src/app/login/page.tsx` calls `getSession()` after `signIn()` and routes by role: ADMIN → `/admin`, STORE_OWNER → `/dashboard/store`, USER → `/account`. A `from` query param overrides for deep links.
+- **Dedicated admin login:** `/admin/login` is a public page (outside the protected route group) that refuses non-staff accounts by signing them out. Unauthenticated visitors hitting `/admin/*` are redirected to `/admin/login` via `requireStaff()` in `auth-guard.ts`.
+- **Route group for protected admin:** All admin pages live under `src/app/admin/(authed)/` with a layout that calls `requireStaff()` (ADMIN + CONTENT_MANAGER). The root `src/app/admin/layout.tsx` is just a shell wrapper (no guard) so `/admin/login` renders without auth. Route groups `(name)` don't affect the URL.
+- **No public admin creation:** `/api/auth/register` always sets role `USER`; `registerSchema` (zod) has no `role` field so any submitted role is dropped. Staff accounts are created only by an ADMIN via `/api/admin/users` POST (zod-validated to ADMIN/CONTENT_MANAGER).
+- **Store registration flow:** `/api/stores/register` blocks staff (ADMIN/CONTENT_MANAGER) from self-registering a store, limits one store per owner, and promotes USER → STORE_OWNER inside a transaction. `/add-store` shows a clear notice to USER accounts that they'll become a store owner, and redirects staff to the admin panel.
+- **Header role awareness:** `src/components/site-header.tsx` shows role-specific shortcuts — store owners get «لوحة المتجر», staff get «لوحة الإدارة», users get «حسابي» + «أضف متجرك».
+- **User account home:** `src/app/account/page.tsx` is a role-aware landing showing shortcuts and recent activity (reviews, search requests). Replaces sending users to `/account/settings` directly after login.
+- **Prisma client URL safety:** `src/lib/prisma.ts` uses `buildDatabaseUrl()` with a fallback so `next build` doesn't crash when `DATABASE_URL` is absent (dynamic pages don't execute at build, but the client is constructed at import time).
