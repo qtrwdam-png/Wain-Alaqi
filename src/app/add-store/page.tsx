@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { fetchWithRetry } from "@/lib/fetch-retry";
 
 export default function AddStorePage() {
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
@@ -18,8 +19,8 @@ export default function AddStorePage() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/categories").then((r) => r.json()),
-      fetch("/api/cities").then((r) => r.json()),
+      fetchWithRetry("/api/categories").then((r) => r.json()),
+      fetchWithRetry("/api/cities").then((r) => r.json()),
     ]).then(([c, ci]) => {
       setCategories(c.categories || []);
       setCities(ci.cities || []);

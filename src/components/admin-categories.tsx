@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { fetchWithRetry } from "@/lib/fetch-retry";
 
 type Cat = { id: string; name: string; slug: string; icon: string | null; sortOrder: number; active: boolean; _count: { stores: number; products: number } };
 
@@ -13,7 +14,7 @@ export function CategoriesAdminClient({ categories }: { categories: Cat[] }) {
   async function create(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    const res = await fetch("/api/admin/categories", {
+    const res = await fetchWithRetry("/api/admin/categories", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: form.name, icon: form.icon, sortOrder: Number(form.sortOrder), active: true }),

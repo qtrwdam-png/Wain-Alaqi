@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { fetchWithRetry } from "@/lib/fetch-retry";
 import Link from "next/link";
 
 export default function RegisterPage() {
@@ -13,7 +14,7 @@ export default function RegisterPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true); setError(null);
-    const res = await fetch("/api/auth/register", {
+    const res = await fetchWithRetry("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),

@@ -18,23 +18,33 @@ async function canEdit(id: string, userId: string, role: string) {
 export async function PATCH(req: Request, { params }: Ctx) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "يجب تسجيل الدخول" }, { status: 401 });
-  const product = await canEdit(params.id, session.user.id, session.user.role);
-  if (!product) return NextResponse.json({ error: "لا تملك صلاحية" }, { status: 403 });
-  const body = await req.json();
-  const parsed = productSchema.partial().safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message }, { status: 400 });
-  const data: any = { ...parsed.data };
-  if (parsed.data.availability) data.lastStockUpdate = new Date();
-  const updated = await prisma.product.update({ where: { id: params.id }, data });
-  return NextResponse.json({ ok: true, product: updated });
+  try {
+    const product = await canEdit(params.id, session.user.id, session.user.role);
+    if (!product) return NextResponse.json({ error: "لا تملك صلاحية" }, { status: 403 });
+    const body = await req.json();
+    const parsed = productSchema.partial().safeParse(body);
+    if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message }, { status: 400 });
+    const data: any = { ...parsed.data };
+    if (parsed.data.availability) data.lastStockUpdate = new Date();
+    const updated = await prisma.product.update({ where: { id: params.id }, data });
+    return NextResponse.json({ ok: true, product: updated });
+  } catch (error) {
+    logger.error("api.admin.products.patch", { error: String(error) });
+    return NextResponse.json({ error: "فشل التحديث — حاول مرة أخرى" }, { status: 500 });
+  }
 }
 
 export async function DELETE(req: Request, { params }: Ctx) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "يجب تسجيل الدخول" }, { status: 401 });
-  const product = await canEdit(params.id, session.user.id, session.user.role);
-  if (!product) return NextResponse.json({ error: "لا تملك صلاحية" }, { status: 403 });
-  await prisma.product.delete({ where: { id: params.id } });
-  logger.info("product.deleted", { productId: params.id });
-  return NextResponse.json({ ok: true });
+  try {
+    const product = await canEdit(params.id, session.user.id, session.user.role);
+    if (!product) return NextResponse.json({ error: "لا تملك صلاحية" }, { status: 403 });
+    await prisma.product.delete({ where: { id: params.id } });
+    logger.info("product.deleted", { productId: params.id });
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    logger.error("api.admin.products.delete", { error: String(error) });
+    return NextResponse.json({ error: "فشل الحذف — حاول مرة أخرى" }, { status: 500 });
+  }
 }

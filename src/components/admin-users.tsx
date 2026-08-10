@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { fetchWithRetry } from "@/lib/fetch-retry";
 import { ROLE_LABELS } from "@/config/constants";
 
 type User = { id: string; name: string; email: string; phone: string | null; role: string; active: boolean; isDemo: boolean; createdAt: string; _count: { stores: number } };
@@ -11,7 +12,7 @@ export function AdminUsersClient({ users }: { users: User[] }) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   async function update(id: string, role: string, active: boolean) {
-    await fetch(`/api/admin/users/${id}`, {
+    await fetchWithRetry(`/api/admin/users/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ role, active }),
@@ -20,7 +21,7 @@ export function AdminUsersClient({ users }: { users: User[] }) {
   }
   async function del(id: string) {
     if (!confirm("هل أنت متأكد من حذف هذا المستخدم؟")) return;
-    await fetch(`/api/admin/users/${id}`, { method: "DELETE" });
+    await fetchWithRetry(`/api/admin/users/${id}`, { method: "DELETE" });
     router.refresh();
   }
 

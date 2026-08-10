@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { fetchWithRetry } from "@/lib/fetch-retry";
 
 export function StoreReviewActions({ storeId, currentStatus, rejectionReason }: {
   storeId: string; currentStatus: string; rejectionReason: string | null;
@@ -19,7 +20,7 @@ export function StoreReviewActions({ storeId, currentStatus, rejectionReason }: 
       setLoading(false);
       return;
     }
-    const res = await fetch(`/api/admin/stores/${storeId}`, {
+    const res = await fetchWithRetry(`/api/admin/stores/${storeId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action, rejectionReason: reason || undefined }),

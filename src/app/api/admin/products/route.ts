@@ -12,13 +12,18 @@ export async function GET(req: Request) {
   const where: any = {};
   if (searchParams.get("storeId")) where.storeId = searchParams.get("storeId");
   if (searchParams.get("categoryId")) where.categoryId = searchParams.get("categoryId");
-  const products = await prisma.product.findMany({
-    where,
-    include: { store: { select: { name: true, slug: true } } },
-    orderBy: { updatedAt: "desc" },
-    take: 200,
-  });
-  return NextResponse.json({ products });
+  try {
+    const products = await prisma.product.findMany({
+      where,
+      include: { store: { select: { name: true, slug: true } } },
+      orderBy: { updatedAt: "desc" },
+      take: 200,
+    });
+    return NextResponse.json({ products });
+  } catch (error) {
+    logger.error("api.admin.products.list", { error: String(error) });
+    return NextResponse.json({ products: [] }, { status: 200 });
+  }
 }
 
 export async function POST(req: Request) {

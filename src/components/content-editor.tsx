@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { fetchWithRetry } from "@/lib/fetch-retry";
 const KEYS: { key: string; label: string; type: "text" | "textarea" | "json" }[] = [
   { key: "home_hero", label: "عنوان ووصف البطل", type: "json" },
   { key: "home_banner", label: "بانر الدعوة (هل لديك متجر؟)", type: "json" },
@@ -30,7 +31,7 @@ export function ContentEditorClient({ content }: { content: Record<string, any> 
     if (key.type === "json") {
       try { val = JSON.parse(value || "{}"); } catch { setMsg("خطأ في صيغة JSON"); setLoading(false); return; }
     }
-    const res = await fetch("/api/admin/content", {
+    const res = await fetchWithRetry("/api/admin/content", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ key: active, value: val }),

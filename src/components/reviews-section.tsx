@@ -1,4 +1,5 @@
 "use client";
+import { fetchWithRetry } from "@/lib/fetch-retry";
 
 import { useState, useEffect } from "react";
 
@@ -19,7 +20,7 @@ export function ReviewsSection({ storeId, storeSlug }: { storeId: string; storeS
   const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`/api/reviews?storeId=${storeId}`)
+    fetchWithRetry(`/api/reviews?storeId=${storeId}`)
       .then((r) => r.json())
       .then((d) => { setReviews(d.reviews || []); })
       .finally(() => setLoading(false));
@@ -40,7 +41,7 @@ export function ReviewsSection({ storeId, storeSlug }: { storeId: string; storeS
     }
     setSuccess("تم إرسال تقييمك بنجاح. سيظهر بعد المراجعة.");
     setComment("");
-    fetch(`/api/reviews?storeId=${storeId}`).then((r) => r.json()).then((d) => setReviews(d.reviews || []));
+    fetchWithRetry(`/api/reviews?storeId=${storeId}`).then((r) => r.json()).then((d) => setReviews(d.reviews || []));
   }
 
   return (

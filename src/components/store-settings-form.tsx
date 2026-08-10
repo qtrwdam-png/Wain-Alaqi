@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Store } from "@prisma/client";
+import { fetchWithRetry } from "@/lib/fetch-retry";
 
 export function StoreSettingsForm({ store }: { store: Store }) {
   const [form, setForm] = useState({
@@ -15,7 +16,7 @@ export function StoreSettingsForm({ store }: { store: Store }) {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true); setError(null); setSaved(false);
-    const res = await fetch(`/api/stores/${store.id}`, {
+    const res = await fetchWithRetry(`/api/stores/${store.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),

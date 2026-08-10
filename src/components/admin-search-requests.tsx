@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { fetchWithRetry } from "@/lib/fetch-retry";
 
 type Req = { id: string; query: string; notes: string | null; phone: string | null; email: string | null; status: string; count: number; createdAt: string };
 
@@ -11,7 +12,7 @@ export function AdminSearchRequestsClient({ requests, labels }: { requests: Req[
 
   async function setStatus(id: string, status: string) {
     setLoading(id);
-    await fetch(`/api/admin/search-requests`, {
+    await fetchWithRetry(`/api/admin/search-requests`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, status }),

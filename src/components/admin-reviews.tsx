@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { fetchWithRetry } from "@/lib/fetch-retry";
 import Link from "next/link";
 
 type Review = { id: string; rating: number; comment: string | null; status: string; storeName: string; storeSlug: string; userName: string; createdAt: string };
@@ -12,7 +13,7 @@ export function AdminReviewsClient({ reviews }: { reviews: Review[] }) {
 
   async function setStatus(id: string, status: string) {
     setLoading(id);
-    await fetch(`/api/admin/reviews`, {
+    await fetchWithRetry(`/api/admin/reviews`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, status }),
@@ -22,7 +23,7 @@ export function AdminReviewsClient({ reviews }: { reviews: Review[] }) {
   }
   async function del(id: string) {
     if (!confirm("حذف التقييم نهائياً؟")) return;
-    await fetch(`/api/admin/reviews?id=${id}`, { method: "DELETE" });
+    await fetchWithRetry(`/api/admin/reviews?id=${id}`, { method: "DELETE" });
     router.refresh();
   }
 

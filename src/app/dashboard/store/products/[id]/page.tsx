@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { fetchWithRetry } from "@/lib/fetch-retry";
 
 export default function EditProductPage({ params }: { params: { id: string } }) {
   const { id } = params;
@@ -13,7 +14,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/categories").then((r) => r.json()),
+      fetchWithRetry("/api/categories").then((r) => r.json()),
       fetch(`/api/admin/products`).then((r) => r.json()),
     ]).then(([c, pData]) => {
       setCategories(c.categories || []);

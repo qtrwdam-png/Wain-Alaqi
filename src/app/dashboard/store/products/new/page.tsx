@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { fetchWithRetry } from "@/lib/fetch-retry";
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -10,7 +11,7 @@ export default function NewProductPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => { fetch("/api/categories").then((r) => r.json()).then((d) => setCategories(d.categories || [])); }, []);
+  useEffect(() => { fetchWithRetry("/api/categories").then((r) => r.json()).then((d) => setCategories(d.categories || [])); }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

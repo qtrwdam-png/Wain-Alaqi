@@ -9,12 +9,17 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const storeId = searchParams.get("storeId");
   if (!storeId) return NextResponse.json({ error: "storeId مطلوب" }, { status: 400 });
-  const reviews = await prisma.review.findMany({
-    where: { storeId, status: "VISIBLE" },
-    include: { user: { select: { name: true } } },
-    orderBy: { createdAt: "desc" },
-  });
-  return NextResponse.json({ reviews });
+  try {
+    const reviews = await prisma.review.findMany({
+      where: { storeId, status: "VISIBLE" },
+      include: { user: { select: { name: true } } },
+      orderBy: { createdAt: "desc" },
+    });
+    return NextResponse.json({ reviews });
+  } catch (error) {
+    logger.error("api.reviews.list", { error: String(error) });
+    return NextResponse.json({ reviews: [] }, { status: 200 });
+  }
 }
 
 export async function POST(req: Request) {
