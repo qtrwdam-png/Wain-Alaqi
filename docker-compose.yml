@@ -1,0 +1,38 @@
+# Wain Alaqi — local development with PostgreSQL
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: wain
+      POSTGRES_PASSWORD: wainpass
+      POSTGRES_DB: wain_alaqi
+    ports:
+      - "5432:5432"
+    volumes:
+      - wain_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wain -d wain_alaqi"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://wain:wainpass@db:5432/wain_alaqi?sslmode=disable
+      AUTH_SECRET: change-me-to-a-long-random-string
+      NEXTAUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_DEFAULT_CITY: al-ramtha
+    ports:
+      - "3000:3000"
+
+volumes:
+  wain_pgdata:

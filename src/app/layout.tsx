@@ -1,0 +1,39 @@
+import type { Metadata } from "next";
+import { Cairo } from "next/font/google";
+import "./globals.css";
+import { APP_NAME, APP_NAME_EN } from "@/config/constants";
+import { Providers } from "@/components/providers";
+import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
+
+const cairo = Cairo({ subsets: ["arabic", "latin"], weight: ["400", "500", "600", "700", "800"], display: "swap" });
+
+export const metadata: Metadata = {
+  title: {
+    default: `${APP_NAME} — متاجر ومنتجات الرمثا، الأردن`,
+    template: `%s | ${APP_NAME}`,
+  },
+  description:
+    "ابحث عن المنتجات والخدمات والمتاجر في الرمثا، الأردن. اعرف السعر والتوفر والموقع ووسائل التواصل.",
+  keywords: ["الرمثا", "متاجر", "منتجات", "الأردن", "وين ألاقي", "Ramtha"],
+  openGraph: {
+    title: `${APP_NAME} — متاجر ومنتجات الرمثا`,
+    description: "ابحث عن المنتج أو الخدمة التي تحتاجها في الرمثا.",
+    locale: "ar_JO",
+    type: "website",
+  },
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
+      <body className={`${cairo.className} min-h-screen flex flex-col`}>
+        <Providers>
+          <SiteHeader />
+          <main className="flex-1">{children}</main>
+          <SiteFooter />
+        </Providers>
+      </body>
+    </html>
+  );
+}

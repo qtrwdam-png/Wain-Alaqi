@@ -1,0 +1,55 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { productSchema } from "@/lib/validations";
+import { slugify } from "@/lib/utils";
+import { logger } from "@/lib/logger";
+
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const session = await getServerSession(authOptions);
+  const where: any = {};
+  if (searchParams.get("storeId")) where.storeId = searchParams.get("storeId");
+  if (searchParams.get("categoryId")) where.categoryId = searchParams.get("categoryId");
+  const products = await prisma.product.findMany({
+    where,
+    include: { store: { select: { name: true, slug: true } } },
+    orderBy: { updatedAt: "desc" },
+    take: 200,
+  });
+  return NextResponse.json({ products });
+}
+
+export async function POST(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return NextResponse.json({ error: "يجب تسجيل الدخول" }, { status: 401 });
+  const body = await req.json();
+  const parsed = productSchema.safeParse(body);
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message }, { status: 400 });
+
+  const store = await prisma.store.findFirst({ where: { ownerId: session.user.id } });
+  if (!store) return NextResponse.json({ error: "ليس لديك متجر" }, { status: 404 });
+
+  const baseSlug = slugify(parsed.data.name);
+  let slug = baseSlug;
+  let n = 1;
+  while (await prisma.product.findFirst({ where: { storeId: store.id, slug } })) {
+    slug = `${baseSlug}-${n++}`;
+  }
+  const product = await prisma.product.create({
+    data: {
+      storeId: store.id,
+      categoryId: parsed.data.categoryId || store.categoryId,
+      name: parsed.data.name,
+      slug,
+      description: parsed.data.description,
+      price: parsed.data.price,
+      availability: parsed.data.availability,
+      image: parsed.data.image,
+      active: parsed.data.active,
+    },
+  });
+  logger.info("product.created", { productId: product.id, storeId: store.id });
+  return NextResponse.json({ ok: true, product }, { status: 201 });
+}

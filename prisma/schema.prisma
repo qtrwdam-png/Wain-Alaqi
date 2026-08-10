@@ -1,0 +1,292 @@
+// Wain Alaqi — Prisma schema
+// Supported databases: PostgreSQL (Neon / local)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// City — المدينة (قابل للتوسع مستقبلاً)
+// ---------------------------------------------------------------------------
+model City {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  country   String   @default("الأردن")
+  latitude  Float
+  longitude Float
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  stores        Store[]
+  searchQueries SearchQuery[]
+
+  @@map("cities")
+}
+
+// ---------------------------------------------------------------------------
+// User — المستخدم
+// ---------------------------------------------------------------------------
+enum Role {
+  USER
+  STORE_OWNER
+  ADMIN
+  CONTENT_MANAGER
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  passwordHash String   @map("password_hash")
+  role         Role     @default(USER)
+  active       Boolean  @default(true)
+  isDemo       Boolean  @default(false) @map("is_demo")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  stores        Store[]
+  reviews       Review[]
+  searchRequests SearchRequest[]
+  searchQueries  SearchQuery[]
+  reports       Report[]
+
+  @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// Category — القطاع
+// ---------------------------------------------------------------------------
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  icon        String?
+  image       String?
+  sortOrder   Int      @default(0) @map("sort_order")
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  stores   Store[]
+  products Product[]
+
+  @@map("categories")
+}
+
+// ---------------------------------------------------------------------------
+// Store — المتجر
+// ---------------------------------------------------------------------------
+enum StoreStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  SUSPENDED
+  ARCHIVED
+}
+
+model Store {
+  id              String      @id @default(cuid())
+  name            String
+  slug            String      @unique
+  description     String?
+  categoryId      String      @map("category_id")
+  category        Category    @relation(fields: [categoryId], references: [id])
+  ownerId         String      @map("owner_id")
+  owner           User        @relation(fields: [ownerId], references: [id])
+  cityId          String      @map("city_id")
+  city            City        @relation(fields: [cityId], references: [id])
+  phone           String?
+  whatsapp        String?
+  address         String?
+  latitude        Float?
+  longitude       Float?
+  logo            String?
+  coverImage      String?     @map("cover_image")
+  openingHours    Json?       @map("opening_hours")
+  status          StoreStatus @default(PENDING_REVIEW)
+  verified        Boolean     @default(false)
+  rejectionReason String?     @map("rejection_reason")
+  isDemo          Boolean     @default(false) @map("is_demo")
+  isFeatured      Boolean     @default(false) @map("is_featured")
+  rating          Float       @default(0)
+  reviewCount     Int         @default(0) @map("review_count")
+  views           Int         @default(0)
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  products  Product[]
+  reviews   Review[]
+
+  @@index([cityId])
+  @@index([categoryId])
+  @@index([status])
+  @@map("stores")
+}
+
+// ---------------------------------------------------------------------------
+// Product — المنتج
+// ---------------------------------------------------------------------------
+enum Availability {
+  AVAILABLE
+  LOW_STOCK
+  OUT_OF_STOCK
+  UNKNOWN
+}
+
+model Product {
+  id             String       @id @default(cuid())
+  storeId        String       @map("store_id")
+  store          Store        @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  categoryId     String?      @map("category_id")
+  category       Category?    @relation(fields: [categoryId], references: [id])
+  name           String
+  slug           String
+  description     String?
+  price          Float?
+  currency       String       @default("JOD")
+  availability   Availability @default(UNKNOWN)
+  image          String?
+  active         Boolean      @default(true)
+  isDemo         Boolean       @default(false) @map("is_demo")
+  lastStockUpdate DateTime    @default(now()) @map("last_stock_update")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  @@unique([storeId, slug])
+  @@index([storeId])
+  @@index([categoryId])
+  @@index([availability])
+  @@map("products")
+}
+
+// ---------------------------------------------------------------------------
+// Review — التقييم
+// ---------------------------------------------------------------------------
+enum ReviewStatus {
+  VISIBLE
+  HIDDEN
+  PENDING
+}
+
+model Review {
+  id        String       @id @default(cuid())
+  storeId   String       @map("store_id")
+  store     Store        @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  userId    String       @map("user_id")
+  user      User         @relation(fields: [userId], references: [id])
+  rating    Int
+  comment   String?
+  status    ReviewStatus @default(VISIBLE)
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  reports Report[]
+
+  @@unique([storeId, userId])
+  @@map("reviews")
+}
+
+// ---------------------------------------------------------------------------
+// Report — البلاغات
+// ---------------------------------------------------------------------------
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
+model Report {
+  id          String       @id @default(cuid())
+  reporterId  String       @map("reporter_id")
+  reporter    User         @relation(fields: [reporterId], references: [id])
+  reviewId    String?      @map("review_id")
+  review      Review?      @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reason      String
+  status      ReportStatus @default(OPEN)
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  @@map("reports")
+}
+
+// ---------------------------------------------------------------------------
+// SearchQuery — عمليات البحث (للإحصائيات و Popular Searches)
+// ---------------------------------------------------------------------------
+model SearchQuery {
+  id        String   @id @default(cuid())
+  query     String
+  cityId    String?  @map("city_id")
+  city      City?    @relation(fields: [cityId], references: [id])
+  userId    String?  @map("user_id")
+  user      User?    @relation(fields: [userId], references: [id])
+  results   Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([query])
+  @@map("search_queries")
+}
+
+// ---------------------------------------------------------------------------
+// SearchRequest — طلبات "لم أجد ما أبحث عنه"
+// ---------------------------------------------------------------------------
+enum SearchRequestStatus {
+  NEW
+  SEARCHING
+  FOUND
+  CLOSED
+}
+
+model SearchRequest {
+  id        String             @id @default(cuid())
+  query     String
+  notes     String?
+  phone     String?
+  email     String?
+  userId    String?            @map("user_id")
+  user      User?              @relation(fields: [userId], references: [id])
+  status    SearchRequestStatus @default(NEW)
+  count     Int                @default(1)
+  createdAt DateTime           @default(now()) @map("created_at")
+  updatedAt DateTime           @updatedAt @map("updated_at")
+
+  @@index([query])
+  @@index([status])
+  @@map("search_requests")
+}
+
+// ---------------------------------------------------------------------------
+// Content — محتوى الصفحات (قابل للتعديل من CMS)
+// ---------------------------------------------------------------------------
+model Content {
+  id    String @id @default(cuid())
+  key   String @unique
+  value Json
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("content")
+}
+
+// ---------------------------------------------------------------------------
+// AuditLog — سجل العمليات الإدارية
+// ---------------------------------------------------------------------------
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?  @map("actor_id")
+  action    String
+  entity    String
+  entityId  String?  @map("entity_id")
+  metadata  Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("audit_logs")
+}
