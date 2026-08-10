@@ -22,9 +22,9 @@ export default async function MapPage() {
   const centerLng = city?.longitude || stores[0]?.longitude || 36.0;
 
   return (
-    <div className="container-app py-8">
-      <h1 className="text-2xl font-extrabold text-gray-900">خريطة المتاجر في الرمثا</h1>
-      <p className="mt-1 text-gray-500">{stores.length} متجر على الخريطة. اضغط على أي علامة لعرض المتجر.</p>
+    <div className="container-app py-6 sm:py-8">
+      <h1 className="text-xl font-extrabold text-gray-900 sm:text-2xl">خريطة المتاجر في الرمثا</h1>
+      <p className="mt-1 text-sm text-gray-500 sm:text-base">{stores.length} متجر على الخريطة. اضغط على أي علامة لعرض المتجر.</p>
       <div className="mt-6 overflow-hidden rounded-xl ring-1 ring-gray-200">
         <StoreMap
           lat={centerLat}
@@ -36,9 +36,9 @@ export default async function MapPage() {
         {stores.slice(0, 30).map((s) => (
           <a key={s.slug} href={`/stores/${s.slug}`} className="card flex items-center gap-3 p-3 hover:shadow-card-hover">
             <span className="text-xl">📍</span>
-            <div>
-              <p className="font-bold text-gray-800">{s.name}</p>
-              <p className="text-xs text-gray-500">{s.address || "—"}</p>
+            <div className="min-w-0">
+              <p className="truncate font-bold text-gray-800">{s.name}</p>
+              <p className="truncate text-xs text-gray-500">{s.address || "—"}</p>
             </div>
           </a>
         ))}

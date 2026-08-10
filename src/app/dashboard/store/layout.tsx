@@ -8,10 +8,10 @@ export default async function StoreDashboardLayout({ children }: { children: Rea
   const store = user ? await getOwnedStore(user.id) : null;
 
   return (
-    <div className="container-app py-8">
+    <div className="container-app py-6 sm:py-8">
       <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
         <StoreSidebar store={store} />
-        <div>{children}</div>
+        <div className="min-w-0">{children}</div>
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { APP_NAME } from "@/config/constants";
 import { SearchBox } from "@/components/search-box";
 import { NotificationBell } from "@/components/notification-bell";
+import { Logo } from "@/components/logo";
 
 const NAV_LINKS = [
   { href: "/", label: "الرئيسية" },
@@ -20,11 +21,13 @@ const NAV_LINKS = [
 
 export function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const { data: session, status } = useSession();
   const pathname = usePathname();
 
   useEffect(() => {
     setMobileOpen(false);
+    setSearchOpen(false);
   }, [pathname]);
 
   const isAuthed = status === "authenticated" && !!session?.user;
@@ -32,7 +35,6 @@ export function SiteHeader() {
   const isAdmin = role === "ADMIN";
   const isStaff = role === "ADMIN" || role === "CONTENT_MANAGER";
   const isStoreOwner = role === "STORE_OWNER";
-  // A regular user (or anyone) can become a store owner by adding a store.
   const canAddStore = isAuthed && (role === "USER" || isStoreOwner);
   const showStoreDashboard = isStoreOwner || isAdmin;
   const showAdminPanel = isStaff;
@@ -40,12 +42,10 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/95 backdrop-blur">
       <div className="container-app">
-        <div className="flex h-16 items-center gap-3">
-          <Link href="/" className="flex shrink-0 items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-lg font-bold text-white">
-              و
-            </span>
-            <span className="text-xl font-extrabold text-brand-700">{APP_NAME}</span>
+        <div className="flex h-14 items-center gap-2 sm:h-16 sm:gap-3">
+          <Link href="/" className="flex shrink-0 items-center" aria-label={APP_NAME}>
+            <Logo size={34} withText={false} priority className="sm:hidden" />
+            <Logo size={36} withText priority className="hidden sm:inline-flex" />
           </Link>
 
           <Suspense fallback={null}>
@@ -58,7 +58,17 @@ export function SiteHeader() {
             ))}
           </nav>
 
-          <div className="mr-auto flex items-center gap-2">
+          <div className="mr-auto flex items-center gap-1 sm:gap-2">
+            {/* Mobile search trigger */}
+            <button
+              onClick={() => setSearchOpen((v) => !v)}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-gray-700 hover:bg-gray-100 md:hidden"
+              aria-label="بحث"
+              aria-expanded={searchOpen}
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            </button>
+
             {isAuthed ? (
               <>
                 <NotificationBell />
@@ -95,6 +105,15 @@ export function SiteHeader() {
           </div>
         </div>
       </div>
+
+      {/* Mobile search bar (collapsible) */}
+      {searchOpen && (
+        <div className="border-t border-gray-200 bg-white px-3 pb-3 pt-2 md:hidden">
+          <Suspense fallback={<div className="h-12 text-gray-400">جارٍ التحميل…</div>}>
+            <SearchBox compact={false} />
+          </Suspense>
+        </div>
+      )}
 
       {mobileOpen && (
         <div className="border-t border-gray-200 bg-white lg:hidden">

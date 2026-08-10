@@ -25,9 +25,9 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
       <Suspense fallback={<div className="mt-4 text-sm text-gray-400">جارٍ التحميل…</div>}>
         <AdminProductsFilters categories={categories} stores={stores} current={searchParams} />
       </Suspense>
-      <div className="mt-4 overflow-x-auto">
-        <table className="w-full text-right text-sm">
-          <thead className="border-b text-gray-400"><tr><th className="p-2">المنتج</th><th className="p-2">المتجر</th><th className="p-2">القطاع</th><th className="p-2">السعر</th><th className="p-2">التوفر</th><th className="p-2">الحالة</th></tr></thead>
+      <div className="mt-4 table-wrap rounded-lg bg-white ring-1 ring-gray-100">
+        <table>
+          <thead className="border-b text-gray-400"><tr><th className="p-2 text-right">المنتج</th><th className="p-2 text-right">المتجر</th><th className="p-2 text-right">القطاع</th><th className="p-2 text-right">السعر</th><th className="p-2 text-right">التوفر</th><th className="p-2 text-right">الحالة</th></tr></thead>
           <tbody>
             {products.map((p) => (
               <tr key={p.id} className="border-b border-gray-100">
@@ -41,7 +41,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
             ))}
           </tbody>
         </table>
-        {products.length === 0 && <p className="mt-4 rounded-lg bg-white p-6 text-center text-gray-500 ring-1 ring-gray-100">لا توجد منتجات مطابقة.</p>}
+        {products.length === 0 && <p className="p-6 text-center text-gray-500">لا توجد منتجات مطابقة.</p>}
       </div>
     </div>
   );

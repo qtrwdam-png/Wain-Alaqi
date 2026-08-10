@@ -12,15 +12,15 @@ export default async function AdminStoreOwnersPage() {
   });
 
   return (
-    <div>
-      <h1 className="text-2xl font-extrabold text-gray-900">التجار ({owners.length})</h1>
+    <div className="min-w-0">
+      <h1 className="text-xl font-extrabold text-gray-900 sm:text-2xl">التجار ({owners.length})</h1>
       <div className="mt-6 space-y-2">
         {owners.map((o) => (
           <div key={o.id} className="card p-4">
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-              <div>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
                 <p className="font-bold text-gray-800">{o.name}</p>
-                <p className="text-sm text-gray-500">{o.email} · {o.phone || "—"}</p>
+                <p className="break-all text-sm text-gray-500">{o.email} · {o.phone || "—"}</p>
                 <p className="text-xs text-gray-400">تاريخ التسجيل: {new Date(o.createdAt).toLocaleDateString("ar")}</p>
               </div>
               <div className="text-sm">

@@ -110,12 +110,12 @@ export default function AccountSettingsPage() {
 
         {profile && (
           <div className="card mt-6 flex items-center gap-4 p-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-lg font-bold text-brand-700">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-100 text-lg font-bold text-brand-700">
               {profile.name?.charAt(0) || "؟"}
             </div>
-            <div>
-              <p className="font-bold text-gray-800">{profile.name}</p>
-              <p className="text-sm text-gray-500">{roleLabel} · عضو منذ {new Date(profile.createdAt).toLocaleDateString("ar")}</p>
+            <div className="min-w-0">
+              <p className="truncate font-bold text-gray-800">{profile.name}</p>
+              <p className="truncate text-sm text-gray-500">{roleLabel} · عضو منذ {new Date(profile.createdAt).toLocaleDateString("ar")}</p>
             </div>
           </div>
         )}

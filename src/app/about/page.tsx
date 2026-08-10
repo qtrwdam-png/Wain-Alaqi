@@ -13,16 +13,16 @@ export default async function AboutPage() {
     // DB not ready
   }
   return (
-    <div className="container-app py-10">
-      <h1 className="text-3xl font-extrabold text-gray-900">{about.title || "عن المنصة"}</h1>
+    <div className="container-app py-8 sm:py-10">
+      <h1 className="text-2xl font-extrabold text-gray-900 sm:text-3xl">{about.title || "عن المنصة"}</h1>
       <div className="mt-4 max-w-2xl text-gray-600">
         <p>{about.body}</p>
       </div>
 
-      <h2 className="mt-12 text-2xl font-bold">الأسئلة الشائعة</h2>
+      <h2 className="mt-10 text-xl font-bold sm:text-2xl">الأسئلة الشائعة</h2>
       <div className="mt-4 max-w-2xl space-y-4">
         {(faq as { q: string; a: string }[]).map((f, i) => (
-          <div key={i} className="card p-5">
+          <div key={i} className="card p-4 sm:p-5">
             <h3 className="font-bold text-gray-800">{f.q}</h3>
             <p className="mt-1 text-sm text-gray-600">{f.a}</p>
           </div>

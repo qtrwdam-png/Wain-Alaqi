@@ -23,8 +23,8 @@ export default async function StoresPage({ searchParams }: { searchParams: { cat
   }
 
   return (
-    <div className="container-app py-10">
-      <h1 className="text-3xl font-extrabold text-gray-900">المتاجر</h1>
+    <div className="container-app py-8 sm:py-10">
+      <h1 className="text-2xl font-extrabold text-gray-900 sm:text-3xl">المتاجر</h1>
       <p className="mt-2 text-gray-500">تصفح جميع المتاجر في الرمثا.</p>
 
       <div className="mt-6 flex flex-wrap gap-2">
@@ -39,7 +39,7 @@ export default async function StoresPage({ searchParams }: { searchParams: { cat
       {stores.length === 0 ? (
         <p className="mt-8 rounded-lg bg-gray-50 p-8 text-center text-gray-500">لا توجد متاجر مطابقة.</p>
       ) : (
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {stores.map((s) => <StoreCard key={s.id} store={s as any} />)}
         </div>
       )}

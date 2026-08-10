@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { APP_NAME } from "@/config/constants";
 
 export function SearchBox({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
@@ -41,19 +40,21 @@ export function SearchBox({ compact = false }: { compact?: boolean }) {
   return (
     <form onSubmit={submit} className="relative w-full">
       <div className="flex flex-col gap-2 sm:flex-row">
-        <input
-          type="text"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="ماذا تبحث عنه؟"
-          className="input h-14 pr-12 text-base sm:text-lg"
-          aria-label="بحث"
-        />
-        <button type="submit" className="btn-primary h-14 px-8 text-base sm:text-lg">
+        <div className="relative flex-1">
+          <input
+            type="text"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="ماذا تبحث عنه؟"
+            className="input h-12 pr-11 text-base sm:h-14 sm:pr-12 sm:text-lg"
+            aria-label="بحث"
+          />
+          <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
+        <button type="submit" className="btn-primary h-12 px-8 text-base sm:h-14 sm:text-lg">
           بحث
         </button>
       </div>
-      <svg className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 sm:hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
     </form>
   );
 }

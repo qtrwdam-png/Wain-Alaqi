@@ -29,9 +29,9 @@ export default async function SearchPage({ searchParams }: { searchParams: SP })
   const results = q ? await searchProducts(q, filters).catch(() => []) : [];
 
   return (
-    <div className="container-app py-8">
+    <div className="container-app py-6 sm:py-8">
       {q && (
-        <h1 className="text-2xl font-extrabold text-gray-900">
+        <h1 className="text-xl font-extrabold text-gray-900 sm:text-2xl">
           نتائج البحث عن: <span className="text-brand-700">«{q}»</span>
         </h1>
       )}
@@ -57,11 +57,11 @@ export default async function SearchPage({ searchParams }: { searchParams: SP })
             const dirHref = r.storeLatitude && r.storeLongitude ? `https://www.openstreetmap.org/?mlat=${r.storeLatitude}&mlon=${r.storeLongitude}` : null;
             return (
               <div key={r.id} className="card flex flex-col gap-4 p-4 sm:flex-row">
-                <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-gray-50">
-                  {r.image ? <img src={r.image} alt={r.name} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-3xl text-gray-300">📦</div>}
+                <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-gray-50 sm:h-24 sm:w-24">
+                  {r.image ? <img src={r.image} alt={r.name} className="h-full w-full object-cover" loading="lazy" /> : <div className="flex h-full items-center justify-center text-3xl text-gray-300">📦</div>}
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
                     <h3 className="font-bold text-gray-900">{r.name}</h3>
                     <span className={`badge ${r.availability === "AVAILABLE" ? "badge-green" : r.availability === "OUT_OF_STOCK" ? "badge-red" : "badge-gray"}`}>
                       {AVAILABILITY_LABELS[r.availability] || r.availability}
