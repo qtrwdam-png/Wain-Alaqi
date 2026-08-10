@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { Cairo } from "next/font/google";
 import "./globals.css";
 import { APP_NAME, APP_NAME_EN } from "@/config/constants";
@@ -31,7 +32,12 @@ export const viewport: Viewport = {
   themeColor: "#1d7a40",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Reading a request header forces all pages to render dynamically so the
+  // per-request CSP nonce (set by middleware) is injected into inline scripts.
+  // Without this, statically-prerendered pages bake the HTML at build time
+  // (no nonce) and CSP blocks their hydration scripts.
+  await headers();
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <body className={`${cairo.className} min-h-screen flex flex-col`}>
