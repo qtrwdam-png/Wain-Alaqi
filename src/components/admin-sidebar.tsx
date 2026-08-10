@@ -39,7 +39,7 @@ export function AdminSidebar() {
       </aside>
 
       {/* Desktop: sticky sidebar */}
-      <aside className="card h-fit p-4 lg:sticky lg:top-6 lg:block">
+      <aside className="card hidden h-fit p-4 lg:sticky lg:top-6 lg:block">
         <div className="mb-4 border-b pb-3">
           <p className="text-xs text-gray-400">لوحة الإدارة</p>
           <p className="font-bold text-brand-700">CMS</p>

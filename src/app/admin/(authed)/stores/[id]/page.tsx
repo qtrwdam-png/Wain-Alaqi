@@ -53,9 +53,9 @@ export default async function AdminStoreDetailPage({ params }: { params: { id: s
             <h2 className="mb-3 font-bold">المنتجات ({store.products.length})</h2>
             <div className="space-y-2">
               {store.products.map((p) => (
-                <div key={p.id} className="flex items-center justify-between border-b pb-2 text-sm">
-                  <span>{p.name}</span>
-                  <span className="text-gray-500">{formatPrice(p.price)} · {AVAILABILITY_LABELS[p.availability]}</span>
+                <div key={p.id} className="flex flex-col gap-1 border-b pb-2 text-sm sm:flex-row sm:items-center sm:justify-between">
+                  <span className="min-w-0 break-words">{p.name}</span>
+                  <span className="shrink-0 text-gray-500">{formatPrice(p.price)} · {AVAILABILITY_LABELS[p.availability]}</span>
                 </div>
               ))}
               {store.products.length === 0 && <p className="text-gray-400">لا توجد منتجات.</p>}

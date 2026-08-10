@@ -26,27 +26,27 @@ export default async function AdminStoresPage({ searchParams }: { searchParams: 
         <StoresListClient currentStatus={searchParams.status || ""} q={searchParams.q || ""} statuses={statuses} labels={STORE_STATUS_LABELS} />
       </Suspense>
 
-      <div className="mt-6 table-wrap rounded-lg bg-white ring-1 ring-gray-100">
+      <div className="mt-6 responsive-table">
         <table>
-          <thead className="border-b text-gray-400">
+          <thead>
             <tr>
-              <th className="p-2 text-right">المتجر</th><th className="p-2 text-right">القطاع</th><th className="p-2 text-right">التاجر</th>
-              <th className="p-2 text-right">الحالة</th><th className="p-2 text-right">تجريبي</th><th className="p-2 text-right">إجراءات</th>
+              <th>المتجر</th><th>القطاع</th><th>التاجر</th>
+              <th>الحالة</th><th>تجريبي</th><th>إجراءات</th>
             </tr>
           </thead>
           <tbody>
             {stores.map((s) => (
-              <tr key={s.id} className="border-b border-gray-100">
-                <td className="p-2 font-medium text-gray-800">{s.name}</td>
-                <td className="p-2 text-gray-500">{s.category?.name}</td>
-                <td className="p-2 text-gray-500">{s.owner.name}</td>
-                <td className="p-2">
+              <tr key={s.id}>
+                <td data-label="المتجر" className="font-medium text-gray-800">{s.name}</td>
+                <td data-label="القطاع" className="text-gray-500">{s.category?.name}</td>
+                <td data-label="التاجر" className="text-gray-500">{s.owner.name}</td>
+                <td data-label="الحالة">
                   <span className={`badge ${s.status === "APPROVED" ? "badge-green" : s.status === "PENDING_REVIEW" ? "badge-yellow" : s.status === "REJECTED" ? "badge-red" : "badge-gray"}`}>
                     {STORE_STATUS_LABELS[s.status] || s.status}
                   </span>
                 </td>
-                <td className="p-2">{s.isDemo ? <span className="badge-blue">نعم</span> : "—"}</td>
-                <td className="p-2"><Link href={`/admin/stores/${s.id}`} className="text-brand-700 hover:underline">إدارة</Link></td>
+                <td data-label="تجريبي">{s.isDemo ? <span className="badge-blue">نعم</span> : "—"}</td>
+                <td data-label=""><Link href={`/admin/stores/${s.id}`} className="text-brand-700 hover:underline">إدارة</Link></td>
               </tr>
             ))}
           </tbody>

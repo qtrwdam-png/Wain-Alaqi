@@ -25,18 +25,20 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
       <Suspense fallback={<div className="mt-4 text-sm text-gray-400">جارٍ التحميل…</div>}>
         <AdminProductsFilters categories={categories} stores={stores} current={searchParams} />
       </Suspense>
-      <div className="mt-4 table-wrap rounded-lg bg-white ring-1 ring-gray-100">
+      <div className="mt-4 responsive-table">
         <table>
-          <thead className="border-b text-gray-400"><tr><th className="p-2 text-right">المنتج</th><th className="p-2 text-right">المتجر</th><th className="p-2 text-right">القطاع</th><th className="p-2 text-right">السعر</th><th className="p-2 text-right">التوفر</th><th className="p-2 text-right">الحالة</th></tr></thead>
+          <thead>
+            <tr><th>المنتج</th><th>المتجر</th><th>القطاع</th><th>السعر</th><th>التوفر</th><th>الحالة</th></tr>
+          </thead>
           <tbody>
             {products.map((p) => (
-              <tr key={p.id} className="border-b border-gray-100">
-                <td className="p-2 font-medium text-gray-800">{p.name}</td>
-                <td className="p-2 text-gray-500">{p.store.name}</td>
-                <td className="p-2 text-gray-500">{p.category?.name || "—"}</td>
-                <td className="p-2">{formatPrice(p.price)}</td>
-                <td className="p-2">{AVAILABILITY_LABELS[p.availability]}</td>
-                <td className="p-2">{p.active ? <span className="badge-green">نشط</span> : <span className="badge-gray">مخفي</span>}</td>
+              <tr key={p.id}>
+                <td data-label="المنتج" className="font-medium text-gray-800">{p.name}</td>
+                <td data-label="المتجر" className="text-gray-500">{p.store.name}</td>
+                <td data-label="القطاع" className="text-gray-500">{p.category?.name || "—"}</td>
+                <td data-label="السعر">{formatPrice(p.price)}</td>
+                <td data-label="التوفر">{AVAILABILITY_LABELS[p.availability]}</td>
+                <td data-label="الحالة">{p.active ? <span className="badge-green">نشط</span> : <span className="badge-gray">مخفي</span>}</td>
               </tr>
             ))}
           </tbody>

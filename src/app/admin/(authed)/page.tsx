@@ -53,12 +53,12 @@ export default async function AdminDashboard() {
         ) : (
           <div className="space-y-2">
             {pendingStores.slice(0, 5).map((s) => (
-              <div key={s.id} className="card flex items-center justify-between p-4">
-                <div>
+              <div key={s.id} className="card flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
                   <p className="font-bold text-gray-800">{s.name}</p>
                   <p className="text-xs text-gray-400">{s.category?.name} · {s.owner.name} · {s.owner.email}</p>
                 </div>
-                <Link href={`/admin/stores/${s.id}`} className="btn-secondary text-sm">مراجعة</Link>
+                <Link href={`/admin/stores/${s.id}`} className="btn-secondary shrink-0 text-sm">مراجعة</Link>
               </div>
             ))}
           </div>

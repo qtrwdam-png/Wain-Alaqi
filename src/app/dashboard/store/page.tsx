@@ -74,12 +74,12 @@ export default async function StoreDashboardHome() {
         <h2 className="mb-3 text-lg font-bold">أحدث المنتجات</h2>
         <div className="space-y-2">
           {products.slice(0, 5).map((p) => (
-            <div key={p.id} className="card flex items-center justify-between p-3">
-              <div>
+            <div key={p.id} className="card flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
                 <p className="font-medium text-gray-800">{p.name}</p>
                 <span className="text-xs text-gray-400">{AVAILABILITY_LABELS[p.availability]} · {p.price ? `${p.price} د.أ` : "—"}</span>
               </div>
-              <Link href={`/dashboard/store/products/${p.id}`} className="btn-ghost text-sm">تعديل</Link>
+              <Link href={`/dashboard/store/products/${p.id}`} className="btn-ghost shrink-0 text-sm">تعديل</Link>
             </div>
           ))}
           {products.length === 0 && <p className="rounded-lg bg-gray-50 p-6 text-center text-gray-500">لا توجد منتجات بعد.</p>}

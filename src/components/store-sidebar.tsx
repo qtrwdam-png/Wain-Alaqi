@@ -39,7 +39,7 @@ export function StoreSidebar({ store }: { store: Store | null }) {
       </aside>
 
       {/* Desktop: sticky sidebar */}
-      <aside className="card h-fit p-4 lg:sticky lg:top-20 lg:block">
+      <aside className="card hidden h-fit p-4 lg:sticky lg:top-20 lg:block">
         <div className="mb-4 border-b pb-3">
           <p className="text-sm text-gray-400">لوحة التاجر</p>
           <p className="font-bold text-gray-800">{store?.name || "لا يوجد متجر"}</p>
