@@ -27,17 +27,20 @@ export async function POST(req: Request) {
     });
 
     // أرسل رمز تأكيد البريد الإلكتروني (OTP) لإثبات ملكية البريد.
+    let mailWarning = false;
     try {
       const { code, expiresAt } = await issueCode(user.id, "EMAIL_VERIFICATION");
       const mail = buildVerificationEmail(lowerEmail, code, CODE_TTL_MINUTES);
-      await sendMail(mail);
-      logger.info("user.registered", { userId: user.id, verificationSent: true, expiresAt });
+      const result = await sendMail(mail);
+      mailWarning = result.delivered !== "resend";
+      logger.info("user.registered", { userId: user.id, delivered: result.delivered, expiresAt });
     } catch (mailErr) {
+      mailWarning = true;
       logger.error("user.register.verification_mail_failed", { userId: user.id, error: String(mailErr) });
     }
 
     return NextResponse.json(
-      { ok: true, userId: user.id, needsVerification: true },
+      { ok: true, userId: user.id, needsVerification: true, mailWarning },
       { status: 201 }
     );
   } catch (e) {
@@ -68,9 +71,9 @@ export async function PUT(req: Request) {
     }
     const { code, expiresAt } = await issueCode(user.id, "EMAIL_VERIFICATION");
     const mail = buildVerificationEmail(lowerEmail, code, CODE_TTL_MINUTES);
-    await sendMail(mail);
-    logger.info("user.resend_verification", { userId: user.id, expiresAt });
-    return NextResponse.json({ ok: true, needsVerification: true, expiresInMinutes: CODE_TTL_MINUTES });
+    const result = await sendMail(mail);
+    logger.info("user.resend_verification", { userId: user.id, delivered: result.delivered, expiresAt });
+    return NextResponse.json({ ok: true, needsVerification: true, expiresInMinutes: CODE_TTL_MINUTES, mailWarning: result.delivered !== "resend" });
   } catch (e) {
     logger.error("user.resend_verification.failed", { error: String(e) });
     return NextResponse.json({ error: "حدث خطأ أثناء إعادة إرسال الرمز" }, { status: 500 });

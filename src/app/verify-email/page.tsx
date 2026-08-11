@@ -19,6 +19,7 @@ function VerifyEmailForm() {
   const [resending, setResending] = useState(false);
   const [resendMsg, setResendMsg] = useState<string | null>(null);
   const [cooldown, setCooldown] = useState(0);
+  const [mailWarning, setMailWarning] = useState(false);
 
   useEffect(() => {
     if (cooldown > 0) {
@@ -63,6 +64,7 @@ function VerifyEmailForm() {
     setResending(false);
     if (!res.ok) { setResendMsg(data.error || "تعذّر إعادة الإرسال"); return; }
     setResendMsg("تم إرسال رمز جديد. تحقق من بريدك.");
+    setMailWarning(Boolean(data.mailWarning));
     setCooldown(60);
   }
 
@@ -120,6 +122,11 @@ function VerifyEmailForm() {
           </button>
         </div>
         {resendMsg && <p className="mt-2 text-sm text-gray-500">{resendMsg}</p>}
+        {mailWarning && (
+          <p className="mt-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
+            تعذّر إرسال البريد عبر الخدمة حالياً (مراجعة إعدادات Resend). الرمز مُسجَّل في سجل الخادم — تواصل مع الدعم لتفعيل حسابك.
+          </p>
+        )}
         <p className="mt-4 text-sm text-gray-600">
           <Link href="/login" className="text-brand-700 hover:underline">العودة لتسجيل الدخول</Link>
         </p>

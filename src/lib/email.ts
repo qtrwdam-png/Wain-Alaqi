@@ -22,13 +22,10 @@ function getFromAddress(): string {
   return process.env.RESEND_FROM || "onboarding@resend.dev";
 }
 
-function getAppUrl(): string {
-  return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-}
-
 export interface SendMailResult {
-  delivered: "resend" | "dev";
+  delivered: "resend" | "dev" | "fallback";
   messageId?: string;
+  mailError?: string;
 }
 
 export interface MailMessage {
@@ -38,41 +35,53 @@ export interface MailMessage {
   html?: string;
 }
 
+function logDevEmail(message: MailMessage) {
+  logger.info("email.dev_mode", {
+    to: message.to,
+    subject: message.subject,
+    body: message.text,
+  });
+  // eslint-disable-next-line no-console
+  console.log(`\n========== [DEV EMAIL] ==========\nTo: ${message.to}\nSubject: ${message.subject}\n${message.text}\n==================================\n`);
+}
+
 /**
  * إرسال بريد. في وضع التطوير تُطبع الرسالة في السجل فقط.
+ * إن فشل الإرسال عبر Resend (مفتاح غير صالح/نطاق غير مُحقّق)، يُطبع المحتوى
+ * في السجل كاحتياط حتى يظل التدفّق قابلاً للاختبار ولا يُخفَق الطلب بالكامل.
  */
 export async function sendMail(message: MailMessage): Promise<SendMailResult> {
   if (!isResendConfigured()) {
-    // وضع التطوير: اطبع المحتوى في السجل بدل الإرسال الفعلي.
-    logger.info("email.dev_mode", {
-      to: message.to,
-      subject: message.subject,
-      body: message.text,
-    });
-    // اطبع نصاً واضحاً للرمز ليسهل نسخه أثناء التطوير.
-    // eslint-disable-next-line no-console
-    console.log(`\n========== [DEV EMAIL] ==========\nTo: ${message.to}\nSubject: ${message.subject}\n${message.text}\n==================================\n`);
+    logDevEmail(message);
     return { delivered: "dev" };
   }
 
   // وضع الإنتاج: استخدم Resend.
-  const { Resend } = await import("resend");
-  const resend = new Resend(process.env.RESEND_API_KEY!);
-  const { data, error } = await resend.emails.send({
-    from: `${APP_NAME} <${getFromAddress()}>`,
-    to: message.to,
-    subject: message.subject,
-    text: message.text,
-    html: message.html,
-  });
+  try {
+    const { Resend } = await import("resend");
+    const resend = new Resend(process.env.RESEND_API_KEY!);
+    const { data, error } = await resend.emails.send({
+      from: `${APP_NAME} <${getFromAddress()}>`,
+      to: message.to,
+      subject: message.subject,
+      text: message.text,
+      html: message.html,
+    });
 
-  if (error) {
-    logger.error("email.send.failed", { to: message.to, error: String(error) });
-    throw new Error("فشل إرسال البريد الإلكتروني");
+    if (error) {
+      logger.error("email.send.failed", { to: message.to, error: String(error) });
+      // احتياط: اطبع المحتوى في السجل حتى لا يُخفَق الطلب بالكامل ويمكن رؤية الرمز.
+      logDevEmail(message);
+      return { delivered: "fallback", mailError: String(error) };
+    }
+
+    logger.info("email.sent", { to: message.to, messageId: data?.id });
+    return { delivered: "resend", messageId: data?.id };
+  } catch (e) {
+    logger.error("email.send.exception", { to: message.to, error: String(e) });
+    logDevEmail(message);
+    return { delivered: "fallback", mailError: String(e) };
   }
-
-  logger.info("email.sent", { to: message.to, messageId: data?.id });
-  return { delivered: "resend", messageId: data?.id };
 }
 
 /**
