@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/lib/validations";
 import { logger } from "@/lib/logger";
 import { sendMail, buildVerificationEmail } from "@/lib/email";
-import { issueCode, recentIssuedCount, MAX_RESENDS, CODE_TTL_MINUTES } from "@/lib/verification-codes";
+import { issueCode, recentIssuedCount, MAX_RESENDS, RESEND_WINDOW_MINUTES, CODE_TTL_MINUTES } from "@/lib/verification-codes";
 
 // يُصدِر رمز OTP ويُرسله بالبريد. لا يرمي أخطاء أبداً — يُرجع نتيجة بريديّة.
 async function sendVerificationCode(userId: string, email: string) {
@@ -42,6 +42,14 @@ export async function POST(req: Request) {
         where: { id: existing.id },
         data: { name, phone, passwordHash: hash },
       });
+      // احترم حد إعادة الإرسال لتجنّب الإساءة.
+      const sent = await recentIssuedCount(existing.id);
+      if (sent >= MAX_RESENDS) {
+        return NextResponse.json(
+          { error: `تم إرسال عدة رموز. انتظر ${RESEND_WINDOW_MINUTES} دقيقة ثم حاول تسجيل الدخول بدلاً من إنشاء حساب.` },
+          { status: 429 }
+        );
+      }
       const resent = await sendVerificationCode(existing.id, lowerEmail);
       logger.info("user.register.resume_unverified", { userId: existing.id, delivered: resent.delivered });
       return NextResponse.json(
@@ -84,9 +92,12 @@ export async function PUT(req: Request) {
     if (user.emailVerified) {
       return NextResponse.json({ error: "هذا البريد مُؤكَّد بالفعل" }, { status: 400 });
     }
-    const sent = await recentIssuedCount(user.id, 10);
+    const sent = await recentIssuedCount(user.id);
     if (sent >= MAX_RESENDS) {
-      return NextResponse.json({ error: "تم إرسال رموز كثيرة. حاول لاحقاً." }, { status: 429 });
+      return NextResponse.json(
+        { error: `تم إرسال ${MAX_RESENDS} رموز خلال آخر ${RESEND_WINDOW_MINUTES} دقيقة. انتظر قليلاً ثم حاول مجدداً.` },
+        { status: 429 }
+      );
     }
     const result = await sendVerificationCode(user.id, lowerEmail);
     logger.info("user.resend_verification", { userId: user.id, delivered: result.delivered, expiresAt: result.expiresAt });

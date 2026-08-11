@@ -13,7 +13,8 @@ import { logger } from "./logger";
 export const CODE_TTL_MINUTES = 10;
 export const MAX_ATTEMPTS = 5;
 export const RESEND_COOLDOWN_SECONDS = 60; // الحد الأدنى بين إعادة الإرسال
-export const MAX_RESENDS = 3; // أقصى عدد إعادات إرسال ضمن نافذة زمنية
+export const MAX_RESENDS = 6; // أقصى عدد رموز تصدر ضمن نافذة إعادة الإرسال
+export const RESEND_WINDOW_MINUTES = 30; // نافذة عدّ إعادة الإرسال
 
 export function generateNumericCode(length = 6): string {
   const max = 10 ** length;
@@ -113,11 +114,18 @@ export async function verifyCode(userId: string, code: string, purpose: "EMAIL_V
 /**
  * عدد الرموز الصادرة خلال آخر نافذة زمنية (لمعرفة rate-limit لإعادة الإرسال).
  */
-export async function recentIssuedCount(userId: string, windowMinutes = 10): Promise<number> {
+export async function recentIssuedCount(userId: string, windowMinutes = RESEND_WINDOW_MINUTES): Promise<number> {
   const since = new Date(Date.now() - windowMinutes * 60 * 1000);
   return prisma.emailVerificationCode.count({
     where: { userId, createdAt: { gte: since } },
   });
+}
+
+/**
+ * متى يُسمح للمستخدم بإعادة الإرسال بعد الوصول للحد (بالدقائق).
+ */
+export function retryAfterMinutes(remaining: number): number {
+  return Math.ceil(RESEND_WINDOW_MINUTES * (remaining / MAX_RESENDS));
 }
 
 /**
