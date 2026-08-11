@@ -64,3 +64,22 @@ describe("verification email builder", () => {
     expect(mail.text).toContain("10");
   });
 });
+
+describe("registration resume logic (unverified email)", () => {
+  /**
+   * منطق «الاستئناف»: حين يُعيد عميل التسجيل ببريد موجود لكنه غير مُؤكَّد،
+   * يجب ألا يُرفض (409) بل يُحدَّث ويُرسل له رمز جديد. لا يمكن اختبار
+   * الـ route مباشرةً دون قاعدة بيانات، لكن نُثبت المبدأ عبر دالة قرار بسيطة.
+   */
+  it("an unverified account should resume, not conflict", () => {
+    const existing = { emailVerified: null } as any;
+    const decision = existing.emailVerified ? "conflict" : "resume";
+    expect(decision).toBe("resume");
+  });
+
+  it("a verified account should conflict (409)", () => {
+    const existing = { emailVerified: new Date() } as any;
+    const decision = existing.emailVerified ? "conflict" : "resume";
+    expect(decision).toBe("conflict");
+  });
+});

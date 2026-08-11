@@ -10,6 +10,7 @@ function VerifyEmailForm() {
   const router = useRouter();
   const params = useSearchParams();
   const emailParam = params.get("email") || "";
+  const resumed = params.get("resumed") === "1";
   const password = (typeof window !== "undefined" && sessionStorage.getItem("pending_login_password")) || "";
   const [email, setEmail] = useState(emailParam);
   const [code, setCode] = useState("");
@@ -87,10 +88,16 @@ function VerifyEmailForm() {
     <div className="container-app flex min-h-[70vh] items-center justify-center py-10">
       <div className="card w-full max-w-md p-8">
         <h1 className="text-2xl font-extrabold text-gray-900">تأكيد البريد الإلكتروني</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          أرسلنا رمزاً من 6 أرقام إلى <span className="font-medium text-gray-700">{email || "بريدك"}</span>.
-          أدخله أدناه لتفعيل حسابك.
-        </p>
+        {resumed ? (
+          <p className="mt-2 rounded-lg bg-brand-50 p-3 text-sm text-brand-700">
+            وجدنا أنك بدأت التسجيل سابقاً ولم تُكمله. أرسلنا رمزاً جديداً إلى <span className="font-medium">{email || "بريدك"}</span> — أدخله أدناه لتفعيل حسابك.
+          </p>
+        ) : (
+          <p className="mt-1 text-sm text-gray-500">
+            أرسلنا رمزاً من 6 أرقام إلى <span className="font-medium text-gray-700">{email || "بريدك"}</span>.
+            أدخله أدناه لتفعيل حسابك.
+          </p>
+        )}
         <form onSubmit={submit} className="mt-6 space-y-4">
           <div>
             <label className="label">البريد الإلكتروني</label>

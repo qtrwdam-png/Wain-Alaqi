@@ -28,7 +28,7 @@ function RegisterForm() {
     try {
       sessionStorage.setItem("pending_login_password", form.password);
     } catch {}
-    router.push(`/verify-email?email=${encodeURIComponent(form.email)}`);
+    router.push(`/verify-email?email=${encodeURIComponent(form.email)}${data.resumed ? "&resumed=1" : ""}`);
   }
 
   return (
