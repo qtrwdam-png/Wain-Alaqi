@@ -25,6 +25,12 @@ export const authOptions: NextAuthOptions = {
         if (!user || !user.active) return null;
         const valid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!valid) return null;
+        // امنع دخول الحسابات التي لم تؤكد بريدها — تُعيد رسالة محددة بدل رسالة عامة.
+        if (!user.emailVerified) {
+          // NextAuth لا يدعم رسائل خطأ مخصصة هنا مباشرة؛ نرمي Error يُلتقط ويُترجم
+          // في صفحة الدخول إلى رسالة واضحة (السلسلة "UNVERIFIED" كإشارة).
+          throw new Error("UNVERIFIED");
+        }
         return {
           id: user.id,
           name: user.name,
