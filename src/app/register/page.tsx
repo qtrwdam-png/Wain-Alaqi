@@ -24,11 +24,7 @@ function RegisterForm() {
     const data = await res.json();
     setLoading(false);
     if (!res.ok) { setError(data.error || "حدث خطأ"); return; }
-    // خزّن كلمة المرور مؤقتاً للدخول التلقائي بعد تأكيد البريد.
-    try {
-      sessionStorage.setItem("pending_login_password", form.password);
-    } catch {}
-    router.push(`/verify-email?email=${encodeURIComponent(form.email)}${data.resumed ? "&resumed=1" : ""}`);
+    router.push(`/login?registered=1&from=${encodeURIComponent(from)}`);
   }
 
   return (

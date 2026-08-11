@@ -47,7 +47,6 @@ model User {
   phone        String?
   passwordHash String   @map("password_hash")
   role         Role     @default(USER)
-  emailVerified DateTime? @map("email_verified")
   active       Boolean  @default(true)
   isDemo       Boolean  @default(false) @map("is_demo")
   createdAt    DateTime @default(now()) @map("created_at")
@@ -59,7 +58,6 @@ model User {
   searchQueries  SearchQuery[]
   reports       Report[]
   notifications Notification[]
-  emailVerificationCodes EmailVerificationCode[]
 
   @@map("users")
 }
@@ -320,27 +318,4 @@ model Notification {
 
   @@index([userId, read])
   @@map("notifications")
-}
-
-// ---------------------------------------------------------------------------
-// EmailVerificationCode — رموز تأكيد البريد الإلكتروني (OTP)
-// ---------------------------------------------------------------------------
-model EmailVerificationCode {
-  id         String    @id @default(cuid())
-  userId     String    @map("user_id")
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  codeHash   String    @map("code_hash")
-  purpose    EmailVerificationPurpose @default(EMAIL_VERIFICATION)
-  attempts   Int       @default(0)
-  consumedAt DateTime? @map("consumed_at")
-  expiresAt  DateTime  @map("expires_at")
-  createdAt  DateTime  @default(now()) @map("created_at")
-
-  @@index([userId])
-  @@index([expiresAt])
-  @@map("email_verification_codes")
-}
-
-enum EmailVerificationPurpose {
-  EMAIL_VERIFICATION
 }

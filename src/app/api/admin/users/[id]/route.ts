@@ -41,7 +41,7 @@ export async function POST(req: Request) {
   if (exists) return NextResponse.json({ error: "البريد الإلكتروني مستخدم بالفعل" }, { status: 409 });
   const hash = await bcrypt.hash(password, 12);
   const user = await prisma.user.create({
-    data: { name, email: email.toLowerCase(), phone, passwordHash: hash, role, emailVerified: new Date() },
+    data: { name, email: email.toLowerCase(), phone, passwordHash: hash, role },
     select: { id: true, name: true, email: true, phone: true, role: true, active: true, isDemo: true, createdAt: true, _count: { select: { stores: true } } },
   });
   logger.audit(session.user.id, "user.create", "user", user.id, { role });

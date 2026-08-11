@@ -185,11 +185,10 @@ async function main() {
 
   // Users
   const hash = await bcrypt.hash(DEMO_PASSWORD, 12);
-  const now = new Date();
   const admin = await prisma.user.upsert({
     where: { email: "admin@example.com" },
     update: {},
-    create: { name: "مدير المنصة", email: "admin@example.com", passwordHash: hash, role: "ADMIN" as Role, isDemo: true, emailVerified: now },
+    create: { name: "مدير المنصة", email: "admin@example.com", passwordHash: hash, role: "ADMIN" as Role, isDemo: true },
   });
 
   // store owners
@@ -202,7 +201,7 @@ async function main() {
       const owner = await prisma.user.upsert({
         where: { email },
         update: {},
-        create: { name: `تاجر ${ownerIdx}`, email, passwordHash: hash, role: "STORE_OWNER" as Role, phone: `+9627900000${String(ownerIdx).padStart(2, "0")}`, isDemo: true, emailVerified: now },
+        create: { name: `تاجر ${ownerIdx}`, email, passwordHash: hash, role: "STORE_OWNER" as Role, phone: `+9627900000${String(ownerIdx).padStart(2, "0")}`, isDemo: true },
       });
       owners.push({ owner, catSlug: cat.slug, storeInfo: stores[i] });
       ownerIdx++;
@@ -282,7 +281,7 @@ async function main() {
   const user = await prisma.user.upsert({
     where: { email: "user@example.com" },
     update: {},
-    create: { name: "مستخدم تجريبي", email: "user@example.com", passwordHash: hash, role: "USER" as Role, isDemo: true, emailVerified: now },
+    create: { name: "مستخدم تجريبي", email: "user@example.com", passwordHash: hash, role: "USER" as Role, isDemo: true },
   });
 
   // Reviews on some approved stores

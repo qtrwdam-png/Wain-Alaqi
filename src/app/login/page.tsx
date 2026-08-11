@@ -30,16 +30,7 @@ function LoginForm() {
     e.preventDefault();
     setLoading(true); setError(null);
     const res = await signIn("credentials", { email, password, redirect: false });
-    if (res?.error) {
-      if (res.error === "UNVERIFIED") {
-        // الحساب غير مُؤكَّد — وجّه إلى صفحة تأكيد البريد.
-        setLoading(false);
-        try { sessionStorage.setItem("pending_login_password", password); } catch {}
-        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
-        return;
-      }
-      setError("البريد أو كلمة المرور غير صحيحة"); setLoading(false); return;
-    }
+    if (res?.error) { setError("البريد أو كلمة المرور غير صحيحة"); setLoading(false); return; }
     // Fetch the fresh session to read the role and route accordingly.
     const session = await getSession();
     const role = (session?.user as any)?.role as string | undefined;
