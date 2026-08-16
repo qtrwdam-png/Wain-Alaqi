@@ -110,3 +110,10 @@ npm run db:studio        # prisma studio
 - **No more unpkg.com:** both map components no longer inject `<link>/<script>` from `https://unpkg.com/leaflet@1.9.4`. All Leaflet JS/CSS/images bundle locally under `/_next/static`. Verified: `curl` shows 0 unpkg references on any page.
 - **next.config.js:** removed `{ hostname: "**" }` from `images.remotePatterns` (was a wildcard; kept only `images.unsplash.com` and `ui-avatars.com`).
 - **External links:** all `target="_blank"` links use `rel="noopener noreferrer"` (was `rel="noreferrer"` only in `/search`; `/stores/[slug]` was already correct).
+
+## Admin — Category Description & Home Section Order
+- **Category description:** the `description` field exists on the `Category` model and the `/api/admin/categories` POST + PATCH routes always accepted it, but the admin UI (`admin-categories.tsx`) never exposed it. Added a `<textarea>` to both the **add** form and the **edit** form, plus it now displays under the category name in the list row. The page passes `description` through in the mapped props.
+- **Home section order:** new CMS key `home_section_order` (string) in `src/lib/content.ts` DEFAULTS, default `"categories_first"`. Values: `"categories_first"` (القطاعات فوق المتاجر المميزة) or `"featured_first"` (المتاجر المميزة فوق القطاعات). Edited via the **content editor** (`content-editor.tsx`) as a new `"select"` type — the editor now supports `type: "select"` with `options` in addition to text/textarea/json. The home page reads `Content.get("home_section_order")` and conditionally renders the categories/featured sections in the chosen order. The `/api/admin/content` PUT route now calls `revalidatePath` for `/`, `/about`, `/contact` so content edits appear immediately (was previously cached for up to 1h via `revalidate=3600`).
+
+## Header Logo Size
+- **`Logo` component** (`src/components/logo.tsx`) takes a `size` prop; the header (`site-header.tsx`) previously passed 34 (mobile) / 36 (desktop). Increased to **44 (mobile) / 48 (desktop)** and bumped the header bar height `h-14`→`h-16` (mobile) and `sm:h-16`→`sm:h-20` (desktop) so the larger logo fits. Footer keeps `size={36}`.

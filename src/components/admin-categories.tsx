@@ -4,16 +4,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchWithRetry } from "@/lib/fetch-retry";
 
-type Cat = { id: string; name: string; slug: string; icon: string | null; sortOrder: number; active: boolean; _count: { stores: number; products: number } };
+type Cat = { id: string; name: string; slug: string; icon: string | null; description: string | null; sortOrder: number; active: boolean; _count: { stores: number; products: number } };
 
 export function CategoriesAdminClient({ categories }: { categories: Cat[] }) {
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", icon: "", sortOrder: 0 });
+  const [form, setForm] = useState({ name: "", icon: "", description: "", sortOrder: 0 });
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState<{ name: string; icon: string; sortOrder: number; active: boolean }>({ name: "", icon: "", sortOrder: 0, active: true });
+  const [editForm, setEditForm] = useState<{ name: string; icon: string; description: string; sortOrder: number; active: boolean }>({ name: "", icon: "", description: "", sortOrder: 0, active: true });
   const [editError, setEditError] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
 
@@ -23,17 +23,17 @@ export function CategoriesAdminClient({ categories }: { categories: Cat[] }) {
     const res = await fetchWithRetry("/api/admin/categories", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: form.name, icon: form.icon, sortOrder: Number(form.sortOrder), active: true }),
+      body: JSON.stringify({ name: form.name, description: form.description || null, icon: form.icon, sortOrder: Number(form.sortOrder), active: true }),
     });
     const data = await res.json();
     if (!res.ok) { setError(data.error || "حدث خطأ"); return; }
-    setForm({ name: "", icon: "", sortOrder: 0 });
+    setForm({ name: "", icon: "", description: "", sortOrder: 0 });
     router.refresh();
   }
 
   function startEdit(c: Cat) {
     setEditingId(c.id);
-    setEditForm({ name: c.name, icon: c.icon || "", sortOrder: c.sortOrder, active: c.active });
+    setEditForm({ name: c.name, icon: c.icon || "", description: c.description || "", sortOrder: c.sortOrder, active: c.active });
     setEditError(null);
   }
 
@@ -51,6 +51,7 @@ export function CategoriesAdminClient({ categories }: { categories: Cat[] }) {
       body: JSON.stringify({
         name: editForm.name,
         icon: editForm.icon,
+        description: editForm.description || null,
         sortOrder: Number(editForm.sortOrder),
         active: editForm.active,
       }),
@@ -98,6 +99,7 @@ export function CategoriesAdminClient({ categories }: { categories: Cat[] }) {
                   <div><label className="label">الاسم</label><input className="input" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} /></div>
                   <div><label className="label">الأيقونة (إيموجي)</label><input className="input" value={editForm.icon} onChange={(e) => setEditForm({ ...editForm, icon: e.target.value })} placeholder="🏷️" /></div>
                 </div>
+                <div><label className="label">الوصف</label><textarea className="input min-h-[80px]" value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} placeholder="وصف مختصر للقطاع يظهر في بطاقة القطاع" /></div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div><label className="label">الترتيب</label><input type="number" className="input" value={editForm.sortOrder} onChange={(e) => setEditForm({ ...editForm, sortOrder: Number(e.target.value) })} /></div>
                   <div><label className="label">الحالة</label>
@@ -116,6 +118,7 @@ export function CategoriesAdminClient({ categories }: { categories: Cat[] }) {
                   <span className="text-2xl">{c.icon || "🏷️"}</span>
                   <div className="min-w-0">
                     <p className="font-bold text-gray-800">{c.name}</p>
+                    {c.description && <p className="line-clamp-2 text-xs text-gray-500">{c.description}</p>}
                     <p className="text-xs text-gray-400">{c._count.stores} متجر · {c._count.products} منتج · ترتيب {c.sortOrder}</p>
                   </div>
                 </div>
@@ -135,6 +138,7 @@ export function CategoriesAdminClient({ categories }: { categories: Cat[] }) {
         <h2 className="font-bold">إضافة قطاع</h2>
         <div><label className="label">الاسم</label><input className="input" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
         <div><label className="label">الأيقونة (إيموجي)</label><input className="input" value={form.icon} onChange={(e) => setForm({ ...form, icon: e.target.value })} placeholder="🏷️" /></div>
+        <div><label className="label">الوصف</label><textarea className="input min-h-[80px]" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="وصف مختصر للقطاع يظهر في بطاقة القطاع" /></div>
         <div><label className="label">الترتيب</label><input type="number" className="input" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: Number(e.target.value) })} /></div>
         {error && <p className="rounded bg-red-50 p-2 text-sm text-red-700">{error}</p>}
         <button type="submit" className="btn-primary w-full">إضافة</button>

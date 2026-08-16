@@ -32,7 +32,43 @@ export default async function HomePage() {
   }
 
   const hero = await Content.getHomeHero();
+  const sectionOrder = await Content.get("home_section_order");
+  const featuredFirst = sectionOrder === "featured_first";
   const popularDefault = popular.length ? popular : ["بطارية كيا سيراتو", "شاحن آيفون 20 واط", "سباك", "قطع غيار تويوتا", "دهانات"];
+
+  const categoriesSection = (
+    <section className="container-app py-10 sm:py-12">
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">القطاعات</h2>
+        <Link href="/categories" className="text-sm font-medium text-brand-700 hover:underline">
+          عرض الكل
+        </Link>
+      </div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
+        {categories.map((c) => (
+          <CategoryCard key={c.id} category={c} />
+        ))}
+      </div>
+    </section>
+  );
+
+  const featuredSection = featuredStores.length > 0 ? (
+    <section className="bg-gray-50 py-10 sm:py-12">
+      <div className="container-app">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">متاجر مميزة</h2>
+          <Link href="/stores" className="text-sm font-medium text-brand-700 hover:underline">
+            عرض الكل
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          {featuredStores.map((s) => (
+            <StoreCard key={s.id} store={s as any} />
+          ))}
+        </div>
+      </div>
+    </section>
+  ) : null;
 
   return (
     <div>
@@ -72,38 +108,17 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Categories */}
-      <section className="container-app py-10 sm:py-12">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">القطاعات</h2>
-          <Link href="/categories" className="text-sm font-medium text-brand-700 hover:underline">
-            عرض الكل
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
-          {categories.map((c) => (
-            <CategoryCard key={c.id} category={c} />
-          ))}
-        </div>
-      </section>
-
-      {/* Featured stores */}
-      {featuredStores.length > 0 && (
-        <section className="bg-gray-50 py-10 sm:py-12">
-          <div className="container-app">
-            <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">متاجر مميزة</h2>
-              <Link href="/stores" className="text-sm font-medium text-brand-700 hover:underline">
-                عرض الكل
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-              {featuredStores.map((s) => (
-                <StoreCard key={s.id} store={s as any} />
-              ))}
-            </div>
-          </div>
-        </section>
+      {/* Categories / Featured stores (order controlled by admin) */}
+      {featuredFirst ? (
+        <>
+          {featuredSection}
+          {categoriesSection}
+        </>
+      ) : (
+        <>
+          {categoriesSection}
+          {featuredSection}
+        </>
       )}
 
       {/* CTA */}

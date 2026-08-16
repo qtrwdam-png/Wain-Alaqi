@@ -12,7 +12,7 @@ export default async function AdminCategoriesPage() {
   return (
     <div>
       <h1 className="text-xl font-extrabold text-gray-900 sm:text-2xl">إدارة القطاعات</h1>
-      <CategoriesAdminClient categories={categories.map((c) => ({ id: c.id, name: c.name, slug: c.slug, icon: c.icon, sortOrder: c.sortOrder, active: c.active, _count: { stores: c._count.stores, products: c._count.products } }))} />
+      <CategoriesAdminClient categories={categories.map((c) => ({ id: c.id, name: c.name, slug: c.slug, icon: c.icon, description: c.description, sortOrder: c.sortOrder, active: c.active, _count: { stores: c._count.stores, products: c._count.products } }))} />
     </div>
   );
 }

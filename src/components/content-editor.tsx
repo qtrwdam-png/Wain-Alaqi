@@ -3,8 +3,15 @@
 import { useState } from "react";
 
 import { fetchWithRetry } from "@/lib/fetch-retry";
-const KEYS: { key: string; label: string; type: "text" | "textarea" | "json" }[] = [
+
+type KeyDef = { key: string; label: string; type: "text" | "textarea" | "json" | "select"; options?: { value: string; label: string }[] };
+
+const KEYS: KeyDef[] = [
   { key: "home_hero", label: "عنوان ووصف البطل", type: "json" },
+  { key: "home_section_order", label: "ترتيب أقسام الصفحة الرئيسية", type: "select", options: [
+    { value: "categories_first", label: "القطاعات أولاً ثم المتاجر المميزة" },
+    { value: "featured_first", label: "المتاجر المميزة أولاً ثم القطاعات" },
+  ] },
   { key: "home_banner", label: "بانر الدعوة (هل لديك متجر؟)", type: "json" },
   { key: "footer", label: "نص التذييل", type: "json" },
   { key: "about", label: "صفحة عن المنصة", type: "json" },
@@ -54,13 +61,23 @@ export function ContentEditorClient({ content }: { content: Record<string, any> 
       </div>
       <div className="card min-w-0 p-4 sm:p-6">
         <h2 className="mb-3 font-bold">{KEYS.find((k) => k.key === active)?.label}</h2>
-        {KEYS.find((k) => k.key === active)?.type === "textarea" ? (
-          <textarea className="input min-h-[200px]" value={value} onChange={(e) => setValue(e.target.value)} />
-        ) : KEYS.find((k) => k.key === active)?.type === "json" ? (
-          <textarea className="input min-h-[300px] font-mono text-xs" dir="ltr" value={value} onChange={(e) => setValue(e.target.value)} />
-        ) : (
-          <input className="input" value={value} onChange={(e) => setValue(e.target.value)} />
-        )}
+        {(() => {
+          const key = KEYS.find((k) => k.key === active)!;
+          if (key.type === "textarea") {
+            return <textarea className="input min-h-[200px]" value={value} onChange={(e) => setValue(e.target.value)} />;
+          }
+          if (key.type === "json") {
+            return <textarea className="input min-h-[300px] font-mono text-xs" dir="ltr" value={value} onChange={(e) => setValue(e.target.value)} />;
+          }
+          if (key.type === "select" && key.options) {
+            return (
+              <select className="input" value={value} onChange={(e) => setValue(e.target.value)}>
+                {key.options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            );
+          }
+          return <input className="input" value={value} onChange={(e) => setValue(e.target.value)} />;
+        })()}
         {msg && <p className={`mt-3 rounded p-2 text-sm ${msg.includes("خطأ") ? "bg-red-50 text-red-700" : "bg-brand-50 text-brand-700"}`}>{msg}</p>}
         <button onClick={save} disabled={loading} className="btn-primary mt-4">{loading ? "جارٍ الحفظ…" : "حفظ"}</button>
       </div>

@@ -15,6 +15,9 @@ const DEFAULTS: Record<string, any> = {
     cta_text: "أضف متجرك مجانًا",
     cta_url: "/add-store",
   },
+  // Order of home sections: "featured_first" (متاجر مميزة فوق القطاعات)
+  // or "categories_first" (القطاعات فوق المتاجر المميزة).
+  home_section_order: "categories_first",
   footer: {
     text: "منصة محلية للبحث عن المنتجات والخدمات والمتاجر في الرمثا، الأردن.",
   },

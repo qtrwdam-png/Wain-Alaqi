@@ -42,10 +42,10 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/95 backdrop-blur">
       <div className="container-app">
-        <div className="flex h-14 items-center gap-2 sm:h-16 sm:gap-3">
+        <div className="flex h-16 items-center gap-2 sm:h-20 sm:gap-3">
           <Link href="/" className="flex shrink-0 items-center" aria-label={APP_NAME}>
-            <Logo size={34} withText={false} priority className="sm:hidden" />
-            <Logo size={36} withText priority className="hidden sm:inline-flex" />
+            <Logo size={44} withText={false} priority className="sm:hidden" />
+            <Logo size={48} withText priority className="hidden sm:inline-flex" />
           </Link>
 
           <Suspense fallback={null}>

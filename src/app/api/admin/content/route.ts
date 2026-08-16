@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { Content } from "@/lib/content";
 import { logger } from "@/lib/logger";
+import { revalidatePath } from "next/cache";
 
 export const dynamic = "force-dynamic";
 
@@ -25,5 +26,9 @@ export async function PUT(req: Request) {
   if (!key || value === undefined) return NextResponse.json({ error: "key و value مطلوبان" }, { status: 400 });
   await Content.set(key, value);
   logger.audit(user.id, "content.update", "content", undefined, { key });
+  // Revalidate public pages so content changes appear immediately.
+  revalidatePath("/");
+  revalidatePath("/about");
+  revalidatePath("/contact");
   return NextResponse.json({ ok: true });
 }
