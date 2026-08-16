@@ -7,6 +7,7 @@ const NAV = [
   { href: "/admin", label: "الرئيسية", icon: "📊" },
   { href: "/admin/content", label: "المحتوى", icon: "📝" },
   { href: "/admin/categories", label: "القطاعات", icon: "🏷️" },
+  { href: "/admin/cities", label: "المدن", icon: "📍" },
   { href: "/admin/stores", label: "المتاجر", icon: "🏪" },
   { href: "/admin/products", label: "المنتجات", icon: "📦" },
   { href: "/admin/reviews", label: "التقييمات", icon: "⭐" },

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { logger } from "@/lib/logger";
+import { slugify } from "@/lib/utils";
 
 type Ctx = { params: { id: string } };
 
@@ -40,4 +41,40 @@ export async function DELETE(_req: Request, { params }: Ctx) {
   logger.audit(user.id, "category.delete", "category", params.id);
 
   return NextResponse.json({ ok: true });
+}
+
+// Edit a category: name, icon, sortOrder, active, description, image.
+export async function PATCH(req: Request, { params }: Ctx) {
+  const user = await requireStaff();
+  if (!user) return NextResponse.json({ error: "لا تملك صلاحية" }, { status: 403 });
+
+  const body = await req.json();
+  const { name, icon, sortOrder, active, description, image } = body;
+
+  const existing = await prisma.category.findUnique({ where: { id: params.id } });
+  if (!existing) return NextResponse.json({ error: "القطاع غير موجود" }, { status: 404 });
+
+  // If the name changed, regenerate a unique slug.
+  let slug = existing.slug;
+  if (name && name !== existing.name) {
+    slug = slugify(name);
+    let n = 1;
+    while (await prisma.category.findFirst({ where: { slug, NOT: { id: params.id } } })) slug = `${slugify(name)}-${n++}`;
+  }
+
+  const updated = await prisma.category.update({
+    where: { id: params.id },
+    data: {
+      ...(name != null ? { name } : {}),
+      ...(slug !== existing.slug ? { slug } : {}),
+      ...(icon != null ? { icon: icon || null } : {}),
+      ...(sortOrder != null ? { sortOrder: Number(sortOrder) } : {}),
+      ...(active != null ? { active: Boolean(active) } : {}),
+      ...(description != null ? { description: description || null } : {}),
+      ...(image != null ? { image: image || null } : {}),
+    },
+  });
+  logger.audit(user.id, "category.update", "category", params.id);
+
+  return NextResponse.json({ ok: true, category: updated });
 }
