@@ -113,8 +113,8 @@ export default async function StorePage({ params }: { params: { slug: string } }
               </div>
               {store.category && <Link href={`/categories/${store.category.slug}`} className="text-sm text-brand-600 hover:underline">{store.category.name}</Link>}
               <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-gray-500">
-                <span>⭐ {store.rating > 0 ? store.rating.toFixed(1) : "—"} ({store.reviewCount} تقييم)</span>
-                <span>👁️ {store.views} مشاهدة</span>
+                <span> {store.rating > 0 ? store.rating.toFixed(1) : "—"} ({store.reviewCount} تقييم)</span>
+                <span> {store.views} مشاهدة</span>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
