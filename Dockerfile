@@ -13,8 +13,6 @@ RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
-# Bust Docker layer cache so source changes always trigger a fresh `next build`.
-ARG CACHE_BUST=force-rebuild-1
 RUN npx prisma generate
 RUN npm run build
 
