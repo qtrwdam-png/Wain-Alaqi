@@ -10,8 +10,9 @@ export default function AddStorePage() {
   const { data: session, status, update } = useSession();
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [cities, setCities] = useState<{ id: string; name: string }[]>([]);
+  const [districts, setDistricts] = useState<{ id: string; name: string }[]>([]);
   const [form, setForm] = useState({
-    storeName: "", categoryId: "", cityId: "", description: "", phone: "", whatsapp: "", address: "",
+    storeName: "", categoryId: "", cityId: "", districtId: "", description: "", phone: "", whatsapp: "", address: "",
     latitude: undefined as number | undefined, longitude: undefined as number | undefined,
     logo: "", coverImage: "", openingHours: "",
   });
@@ -32,6 +33,15 @@ export default function AddStorePage() {
       if (ci.cities?.[0]) setForm((f) => ({ ...f, cityId: ci.cities[0].id }));
     });
   }, []);
+
+  // Fetch districts when the selected city changes
+  useEffect(() => {
+    if (!form.cityId) { setDistricts([]); return; }
+    fetchWithRetry(`/api/districts?cityId=${form.cityId}`).then((r) => r.json()).then((d) => {
+      setDistricts(d.districts || []);
+      setForm((f) => ({ ...f, districtId: "" }));
+    }).catch(() => setDistricts([]));
+  }, [form.cityId]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -132,6 +142,12 @@ export default function AddStorePage() {
               <select className="input" required value={form.cityId} onChange={(e) => setForm({ ...form, cityId: e.target.value })}>
                 <option value="">اختر المدينة</option>
                 {cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
+            <div><label className="label">الحي / المنطقة</label>
+              <select className="input" value={form.districtId} onChange={(e) => setForm({ ...form, districtId: e.target.value })} disabled={districts.length === 0}>
+                <option value="">{districts.length === 0 ? "لا توجد أحياء مسجلة" : "اختر الحي (اختياري)"}</option>
+                {districts.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
               </select>
             </div>
             <div>

@@ -64,7 +64,7 @@ export default async function StorePage({ params }: { params: { slug: string } }
 
   const phoneHref = store.phone ? `tel:${store.phone.replace(/\s/g, "")}` : null;
   const waHref = store.whatsapp ? `https://wa.me/${store.whatsapp.replace(/[^\d]/g, "")}` : null;
-  const directionsHref = store.latitude && store.longitude ? `https://www.openstreetmap.org/?mlat=${store.latitude}&mlon=${store.longitude}#map=17/${store.latitude}/${store.longitude}` : null;
+  const directionsHref = store.latitude && store.longitude ? `https://www.google.com/maps/dir/?api=1&destination=${store.latitude},${store.longitude}` : null;
 
   return (
     <div>

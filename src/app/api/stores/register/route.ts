@@ -56,6 +56,7 @@ export async function POST(req: Request) {
           categoryId: d.categoryId,
           ownerId: session.user.id,
           cityId: d.cityId,
+          districtId: d.districtId || null,
           phone: d.phone,
           whatsapp: d.whatsapp,
           address: d.address,

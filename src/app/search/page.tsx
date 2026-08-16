@@ -60,7 +60,7 @@ export default async function SearchPage({ searchParams }: { searchParams: SP })
           {results.map((r) => {
             const phoneHref = r.storePhone ? `tel:${r.storePhone.replace(/\s/g, "")}` : null;
             const waHref = r.storeWhatsapp ? `https://wa.me/${r.storeWhatsapp.replace(/[^\d]/g, "")}` : null;
-            const dirHref = r.storeLatitude && r.storeLongitude ? `https://www.openstreetmap.org/?mlat=${r.storeLatitude}&mlon=${r.storeLongitude}` : null;
+            const dirHref = r.storeLatitude && r.storeLongitude ? `https://www.google.com/maps/dir/?api=1&destination=${r.storeLatitude},${r.storeLongitude}` : null;
             return (
               <div key={r.id} className="card flex flex-col gap-4 p-4 sm:flex-row">
                 <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-gray-50 sm:h-24 sm:w-24">

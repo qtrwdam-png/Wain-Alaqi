@@ -25,9 +25,31 @@ model City {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   stores        Store[]
+  districts     District[]
   searchQueries SearchQuery[]
 
   @@map("cities")
+}
+
+// ---------------------------------------------------------------------------
+// District — الحي / المحافظة داخل مدينة
+// ---------------------------------------------------------------------------
+model District {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String
+  cityId    String   @map("city_id")
+  city      City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  latitude  Float?
+  longitude Float?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  stores Store[]
+
+  @@unique([cityId, slug])
+  @@map("districts")
 }
 
 // ---------------------------------------------------------------------------
@@ -106,6 +128,8 @@ model Store {
   owner           User        @relation(fields: [ownerId], references: [id])
   cityId          String      @map("city_id")
   city            City        @relation(fields: [cityId], references: [id])
+  districtId      String?     @map("district_id")
+  district        District?   @relation(fields: [districtId], references: [id])
   phone           String?
   whatsapp        String?
   address         String?

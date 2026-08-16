@@ -27,7 +27,7 @@ export function middleware(request: NextRequest) {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https:",
     "font-src 'self'",
-    "connect-src 'self' https://nominatim.openstreetmap.org",
+    "connect-src 'self' https://nominatim.openstreetmap.org https://overpass-api.de",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

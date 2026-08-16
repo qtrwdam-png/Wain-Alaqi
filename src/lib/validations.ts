@@ -17,6 +17,7 @@ export const storeRegistrationSchema = z.object({
   storeName: z.string().min(2, "اسم المتجر مطلوب"),
   categoryId: z.string().min(1, "القطاع مطلوب"),
   cityId: z.string().min(1, "المدينة مطلوبة"),
+  districtId: z.string().optional(),
   description: z.string().optional(),
   phone: z.string().optional(),
   whatsapp: z.string().optional(),
