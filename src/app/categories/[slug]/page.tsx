@@ -10,9 +10,11 @@ export const dynamicParams = true;
 export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
+  // Arabic slugs arrive URL-encoded; decode before DB lookup.
+  const slug = decodeURIComponent(params.slug);
   let cat: any = null;
   try {
-    cat = await prisma.category.findUnique({ where: { slug: params.slug } });
+    cat = await prisma.category.findUnique({ where: { slug } });
   } catch {
     return { title: "القطاع غير موجود" };
   }
@@ -32,9 +34,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function CategoryPage({ params }: { params: { slug: string } }) {
+  // Arabic slugs arrive URL-encoded; decode before DB lookup.
+  const slug = decodeURIComponent(params.slug);
   let category: any = null;
   try {
-    category = await getCategoryWithStores(params.slug);
+    category = await getCategoryWithStores(slug);
   } catch {
     // DB not ready
   }
