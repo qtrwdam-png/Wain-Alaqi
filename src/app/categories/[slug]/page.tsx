@@ -3,16 +3,24 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { StoreCard } from "@/components/store-card";
 import { CategoryIcon } from "@/components/category-icon";
+import { BreadcrumbSchema, ItemListSchema } from "@/components/structured-data";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const cat = await prisma.category.findUnique({ where: { slug: params.slug } });
   if (!cat) return { title: "القطاع غير موجود" };
+  const title = `${cat.name} في الرمثا`;
+  const description = cat.description || `متاجر ومنتجات ${cat.name} في الرمثا، الأردن — تصفح المتاجر والأسعار وأماكن البيع.`;
   return {
-    title: `${cat.name} في الرمثا`,
-    description: cat.description || `متاجر ${cat.name} في الرمثا`,
+    title,
+    description,
     alternates: { canonical: `/categories/${cat.slug}` },
+    openGraph: {
+      title,
+      description,
+      type: "website",
+    },
   };
 }
 
@@ -37,6 +45,22 @@ export default async function CategoryPage({ params }: { params: { slug: string 
 
   return (
     <div className="container-app py-8 sm:py-10">
+      <BreadcrumbSchema
+        items={[
+          { name: "الرئيسية", path: "/" },
+          { name: "القطاعات", path: "/categories" },
+          { name: category.name, path: `/categories/${category.slug}` },
+        ]}
+      />
+      {category.stores.length > 0 && (
+        <ItemListSchema
+          name={`متاجر ${category.name} في الرمثا`}
+          items={category.stores.map((s: any) => ({
+            name: s.name,
+            path: `/stores/${s.slug}`,
+          }))}
+        />
+      )}
       <nav className="text-sm text-gray-500">
         <Link href="/categories" className="hover:text-brand-700">القطاعات</Link>
         <span className="mx-1">/</span>

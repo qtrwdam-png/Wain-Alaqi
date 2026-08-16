@@ -1,7 +1,11 @@
 import { Content } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "عن المنصة", description: "نبذة عن منصة وين ألاقي؟" };
+export const metadata = {
+  title: "عن منصة وين ألاقي؟",
+  description: "تعرف على منصة وين ألاقي؟ — دليل محلي للبحث عن المنتجات والخدمات والمتاجر في الرمثا، الأردن.",
+  alternates: { canonical: "/about" },
+};
 
 export default async function AboutPage() {
   let about: any = { title: "عن المنصة", body: "وين ألاقي؟ منصة محلية تساعدك على العثور على المنتجات والخدمات والمتاجر في الرمثا، الأردن." };

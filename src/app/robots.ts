@@ -1,23 +1,23 @@
 import type { MetadataRoute } from "next";
-
-const SITE_URL =
-  process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
-  "https://test-web-production-b6f1.up.railway.app";
+import { SITE_URL } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
         // Index all public content; block auth/admin/dashboard/private routes.
+        // The admin panel (incl. /admin/login) must NOT be indexed.
         userAgent: "*",
         allow: "/",
         disallow: [
           "/admin/",
+          "/admin/login",
           "/dashboard/",
           "/account/",
           "/login",
           "/register",
           "/unauthorized",
+          "/search",
           "/api/",
         ],
       },

@@ -2,7 +2,11 @@ import { prisma } from "@/lib/prisma";
 import { StoreMap } from "@/components/store-map";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "خريطة المتاجر", description: "تصفح المتاجر على الخريطة" };
+export const metadata = {
+  title: "خريطة متاجر الرمثا",
+  description: "تصفح مواقع المتاجر في الرمثا، الأردن على الخريطة — اعثر على أقرب متجر إليك وموقعه ووسائل التواصل.",
+  alternates: { canonical: "/map" },
+};
 
 export default async function MapPage() {
   let city: any = null;

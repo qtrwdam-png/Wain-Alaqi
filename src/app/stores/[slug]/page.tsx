@@ -6,6 +6,8 @@ import { formatPrice } from "@/lib/utils";
 import { VerifiedBadge } from "@/components/verified-badge";
 import { StoreMap } from "@/components/store-map";
 import { ReviewsSection } from "@/components/reviews-section";
+import { LocalBusinessSchema, BreadcrumbSchema } from "@/components/structured-data";
+import { absoluteUrl } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
@@ -13,14 +15,29 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const slug = decodeURIComponent(params.slug);
   const store = await prisma.store.findUnique({
     where: { slug },
-    include: { category: true },
+    include: { category: true, city: { select: { name: true } } },
   });
   if (!store) return { title: "المتجر غير موجود" };
+  const title = `${store.name} — ${store.category?.name || "متجر"} في الرمثا`;
+  const description =
+    store.description || `تفاصيل متجر ${store.name}${store.category?.name ? ` (${store.category.name})` : ""} في الرمثا: المنتجات والأسعار والموقع ووسائل التواصل.`;
+  const images = store.coverImage || store.logo ? [store.coverImage || store.logo!] : undefined;
   return {
-    title: `${store.name} — ${store.category?.name || ""} في الرمثا`,
-    description: store.description || `تفاصيل متجر ${store.name} في الرمثا`,
+    title,
+    description,
     alternates: { canonical: `/stores/${store.slug}` },
-    openGraph: { title: store.name, description: store.description || "" },
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      url: absoluteUrl(`/stores/${store.slug}`),
+      images,
+    },
+    twitter: {
+      card: images ? "summary_large_image" : "summary",
+      title,
+      description,
+    },
   };
 }
 
@@ -32,6 +49,7 @@ export default async function StorePage({ params }: { params: { slug: string } }
       where: { slug },
       include: {
         category: true,
+        city: { select: { name: true } },
         owner: { select: { name: true } },
         products: { where: { active: true }, orderBy: { updatedAt: "desc" } },
       },
@@ -50,6 +68,34 @@ export default async function StorePage({ params }: { params: { slug: string } }
 
   return (
     <div>
+      <LocalBusinessSchema
+        store={{
+          name: store.name,
+          slug: store.slug,
+          description: store.description,
+          phone: store.phone,
+          whatsapp: store.whatsapp,
+          address: store.address,
+          latitude: store.latitude,
+          longitude: store.longitude,
+          logo: store.logo,
+          coverImage: store.coverImage,
+          rating: store.rating,
+          reviewCount: store.reviewCount,
+          category: store.category ? { name: store.category.name } : null,
+          city: store.city ? { name: store.city.name } : null,
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "الرئيسية", path: "/" },
+          { name: "المتاجر", path: "/stores" },
+          ...(store.category
+            ? [{ name: store.category.name, path: `/categories/${store.category.slug}` }]
+            : []),
+          { name: store.name, path: `/stores/${store.slug}` },
+        ]}
+      />
       {/* Cover */}
       <div className="relative h-36 w-full bg-gradient-to-l from-brand-200 to-brand-100 sm:h-64">
         {store.coverImage && <img src={store.coverImage} alt={store.name} className="h-full w-full object-cover" loading="lazy" />}

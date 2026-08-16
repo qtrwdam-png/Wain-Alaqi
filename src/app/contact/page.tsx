@@ -1,7 +1,11 @@
 import { Content } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "تواصل معنا" };
+export const metadata = {
+  title: "تواصل معنا",
+  description: "تواصل مع منصة وين ألاقي؟ — لأي استفسار أو ملاحظة أو لإضافة متجرك في الرمثا، الأردن.",
+  alternates: { canonical: "/contact" },
+};
 
 export default async function ContactPage() {
   let contact: any = { email: "info@wain-alaqi.test", phone: "—" };

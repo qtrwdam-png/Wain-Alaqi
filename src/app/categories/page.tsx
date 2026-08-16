@@ -1,10 +1,15 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { CategoryIcon } from "@/components/category-icon";
+import { ItemListSchema } from "@/components/structured-data";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "القطاعات", description: "تصفح القطاعات في الرمثا" };
+export const metadata = {
+  title: "قطاعات الرمثا",
+  description: "تصفح قطاعات المتاجر في الرمثا، الأردن — قطاع سيارات، إلكترونيات، مواد بناء، أغذية وغيرها.",
+  alternates: { canonical: "/categories" },
+};
 
 export default async function CategoriesPage() {
   let categories: any[] = [];
@@ -20,6 +25,12 @@ export default async function CategoriesPage() {
 
   return (
     <div className="container-app py-8 sm:py-10">
+      {categories.length > 0 && (
+        <ItemListSchema
+          name="قطاعات المتاجر في الرمثا"
+          items={categories.map((c) => ({ name: c.name, path: `/categories/${c.slug}` }))}
+        />
+      )}
       <h1 className="text-2xl font-extrabold text-gray-900 sm:text-3xl">القطاعات</h1>
       <p className="mt-2 text-gray-500">تصفح المتاجر حسب القطاع في الرمثا.</p>
       <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">

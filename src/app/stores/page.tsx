@@ -1,9 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { StoreCard } from "@/components/store-card";
 import Link from "next/link";
+import { ItemListSchema } from "@/components/structured-data";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "المتاجر", description: "جميع المتاجر في الرمثا" };
+export const metadata = {
+  title: "المتاجر في الرمثا",
+  description: "تصفح جميع المتاجر المعتمدة في الرمثا، الأردن — متاجر وقطاعات وأماكن البيع والأسعار.",
+  alternates: { canonical: "/stores" },
+};
 
 export default async function StoresPage({ searchParams }: { searchParams: { cat?: string; q?: string } }) {
   const where = {
@@ -24,6 +29,12 @@ export default async function StoresPage({ searchParams }: { searchParams: { cat
 
   return (
     <div className="container-app py-8 sm:py-10">
+      {stores.length > 0 && (
+        <ItemListSchema
+          name="متاجر الرمثا"
+          items={stores.map((s: any) => ({ name: s.name, path: `/stores/${s.slug}` }))}
+        />
+      )}
       <h1 className="text-2xl font-extrabold text-gray-900 sm:text-3xl">المتاجر</h1>
       <p className="mt-2 text-gray-500">تصفح جميع المتاجر في الرمثا.</p>
 

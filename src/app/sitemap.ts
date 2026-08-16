@@ -1,16 +1,11 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
-
-// Base site URL — falls back to the Railway production domain when the env var
-// is not set so the sitemap always resolves to absolute URLs.
-const SITE_URL =
-  process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
-  "https://test-web-production-b6f1.up.railway.app";
+import { SITE_URL } from "@/lib/site";
 
 // Static, publicly-indexable pages (auth/dashboard/admin pages are excluded).
+// /search is excluded — it is user-generated query results (noindex).
 const STATIC_ROUTES: { path: string; priority: number; changeFreq: MetadataRoute.Sitemap[number]["changeFrequency"] }[] = [
   { path: "", priority: 1.0, changeFreq: "daily" },
-  { path: "/search", priority: 0.9, changeFreq: "daily" },
   { path: "/stores", priority: 0.9, changeFreq: "daily" },
   { path: "/categories", priority: 0.8, changeFreq: "weekly" },
   { path: "/map", priority: 0.7, changeFreq: "weekly" },
@@ -23,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   const entries: MetadataRoute.Sitemap = STATIC_ROUTES.map((r) => ({
-    url: `${SITE_URL}/${r.path}`.replace(/\/$/, "") || SITE_URL,
+    url: `${SITE_URL}${r.path}` || SITE_URL,
     lastModified: now,
     changeFrequency: r.changeFreq,
     priority: r.priority,

@@ -8,7 +8,13 @@ import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "نتائج البحث" };
+export const metadata = {
+  title: "نتائج البحث",
+  description: "ابحث عن المنتجات والخدمات والمتاجر في الرمثا — أسعار ومتوفرية وموقع.",
+  // Search results pages are user-generated queries; per Google guidance, keep
+  // them out of the index to avoid thin/duplicate crawl waste.
+  robots: { index: false, follow: true },
+};
 
 type SP = { q?: string; cat?: string; sort?: string; min?: string; max?: string; avail?: string; lat?: string; lng?: string };
 
