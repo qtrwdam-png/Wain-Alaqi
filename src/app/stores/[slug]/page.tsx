@@ -105,7 +105,7 @@ export default async function StorePage({ params }: { params: { slug: string } }
           {store.isDemo && <span className="absolute right-3 top-3 badge-blue sm:right-4 sm:top-4">بيانات تجريبية</span>}
         </div>
 
-        <div className="container-app -mt-12 sm:-mt-16">
+        <div className="container-app mt-4 sm:mt-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
             <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-gray-100 sm:h-24 sm:w-24">
               {store.logo ? <img src={store.logo} alt={store.name} className="h-full w-full object-cover" loading="lazy" /> : <span className="text-3xl sm:text-4xl">🏪</span>}
