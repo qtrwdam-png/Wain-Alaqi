@@ -10,6 +10,8 @@ export function CategoriesAdminClient({ categories }: { categories: Cat[] }) {
   const router = useRouter();
   const [form, setForm] = useState({ name: "", icon: "", sortOrder: 0 });
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   async function create(e: React.FormEvent) {
     e.preventDefault();
@@ -25,19 +27,46 @@ export function CategoriesAdminClient({ categories }: { categories: Cat[] }) {
     router.refresh();
   }
 
+  async function remove(id: string, name: string, storeCount: number) {
+    setDeleteError(null);
+    const hint = storeCount > 0
+      ? `تنبيه: هذا القطاع يحتوي على ${storeCount} متجر. لا يمكن حذفه ما دام يحتوي على متاجر.`
+      : "سيتم حذف القطاع نهائياً. المنتلات المرتبطة به (إن وجدت) ستفقد تصنيفها لكنها لن تُحذف.";
+    const ok = window.confirm(`حذف القطاع «${name}»؟\n\n${hint}\n\nهل أنت متأكد؟`);
+    if (!ok) return;
+    setDeletingId(id);
+    const res = await fetchWithRetry(`/api/admin/categories/${id}`, { method: "DELETE" });
+    const data = await res.json().catch(() => ({}));
+    setDeletingId(null);
+    if (!res.ok) { setDeleteError(data.error || "حدث خطأ أثناء الحذف"); return; }
+    router.refresh();
+  }
+
   return (
     <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px]">
       <div className="space-y-2">
+        {deleteError && <p className="rounded bg-red-50 p-2 text-sm text-red-700">{deleteError}</p>}
         {categories.map((c) => (
           <div key={c.id} className="card flex items-center justify-between p-3">
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 items-center gap-3">
               <span className="text-2xl">{c.icon || "🏷️"}</span>
-              <div>
+              <div className="min-w-0">
                 <p className="font-bold text-gray-800">{c.name}</p>
                 <p className="text-xs text-gray-400">{c._count.stores} متجر · {c._count.products} منتج · ترتيب {c.sortOrder}</p>
               </div>
             </div>
-            <span className={`badge ${c.active ? "badge-green" : "badge-gray"}`}>{c.active ? "نشط" : "معطل"}</span>
+            <div className="flex shrink-0 items-center gap-2">
+              <span className={`badge ${c.active ? "badge-green" : "badge-gray"}`}>{c.active ? "نشط" : "معطل"}</span>
+              <button
+                type="button"
+                onClick={() => remove(c.id, c.name, c._count.stores)}
+                disabled={deletingId === c.id}
+                className="btn-danger px-3 py-1 text-sm"
+                aria-label={`حذف القطاع ${c.name}`}
+              >
+                {deletingId === c.id ? "جارٍ…" : "حذف"}
+              </button>
+            </div>
           </div>
         ))}
       </div>

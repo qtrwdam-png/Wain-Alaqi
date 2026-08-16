@@ -3,6 +3,7 @@ import { AVAILABILITY_LABELS } from "@/config/constants";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { StoreReviewActions } from "@/components/store-review-actions";
+import { StoreDeleteButton } from "@/components/store-delete-button";
 import { formatPrice } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -70,6 +71,11 @@ export default async function AdminStoreDetailPage({ params }: { params: { id: s
             <div className="space-y-2 text-sm">
               <Link href={`/stores/${store.slug}`} className="btn-secondary w-full">عرض المتجر</Link>
             </div>
+          </div>
+          <div className="card mt-4 border-t-2 border-red-200 p-4">
+            <h2 className="mb-2 font-bold text-red-700">منطقة الخطر</h2>
+            <p className="mb-3 text-sm text-gray-500">حذف المتجر نهائياً يحذف جميع منتجاته وتقييماته ولا يمكن التراجع عنه.</p>
+            <StoreDeleteButton storeId={store.id} storeName={store.name} />
           </div>
         </div>
       </div>

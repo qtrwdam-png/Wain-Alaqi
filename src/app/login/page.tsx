@@ -3,7 +3,6 @@
 import { useState, Suspense } from "react";
 import { signIn, getSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 
 // Default destination per role after a successful login.
 function homeForRole(role?: string) {
@@ -62,17 +61,6 @@ function LoginForm() {
           {error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
           <button type="submit" disabled={loading} className="btn-primary w-full">{loading ? "جارٍ الدخول…" : "دخول"}</button>
         </form>
-        <div className="mt-6 space-y-2 text-sm text-gray-500">
-          <p>حسابات تجريبية:</p>
-          <p className="font-mono text-xs">store1@example.com / ChangeMe123! (تاجر)</p>
-          <p className="font-mono text-xs">user@example.com / ChangeMe123! (مستخدم)</p>
-        </div>
-        <p className="mt-4 text-sm text-gray-600">
-          ليس لديك حساب؟ <Link href="/register" className="text-brand-700 hover:underline">أنشئ حساباً</Link>
-        </p>
-        <p className="mt-3 border-t pt-3 text-center text-sm text-gray-500">
-          مدير المنصة؟ <Link href="/admin/login" className="font-medium text-brand-700 hover:underline">تسجيل دخول الإدارة</Link>
-        </p>
       </div>
     </div>
   );

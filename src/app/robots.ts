@@ -6,12 +6,12 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         // Index all public content; block auth/admin/dashboard/private routes.
-        // The admin panel (incl. /admin/login) must NOT be indexed.
+        // The admin panel and its secret login must NOT be indexed or discovered.
         userAgent: "*",
         allow: "/",
         disallow: [
           "/admin/",
-          "/admin/login",
+          "/fayizadminlogin",
           "/dashboard/",
           "/account/",
           "/login",

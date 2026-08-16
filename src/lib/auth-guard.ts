@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "./auth";
 import { Role } from "@prisma/client";
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { prisma } from "./prisma";
 
@@ -56,12 +56,13 @@ export async function requireAdmin() {
   return requireRole(["ADMIN"]);
 }
 
-// Staff routes live under /admin — send unauthenticated visitors to the
-// dedicated admin login instead of the public one.
+// Staff routes live under /admin — they are NOT discoverable. Unauthenticated
+// visitors (and anyone guessing /admin) get a 404 so the secret login route
+// is never leaked. Staff sign in via the unguessable /fayizadminlogin route.
 export async function requireStaff() {
   const user = await getCurrentUser();
-  if (!user) redirect("/admin/login");
-  if (!["ADMIN", "CONTENT_MANAGER"].includes(user.role as Role)) redirect("/unauthorized");
+  if (!user) notFound();
+  if (!["ADMIN", "CONTENT_MANAGER"].includes(user.role as Role)) notFound();
   return user;
 }
 
