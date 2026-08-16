@@ -7,7 +7,7 @@ import { fetchWithRetry } from "@/lib/fetch-retry";
 import { LocationPickerMap } from "@/components/location-picker-map";
 
 export default function AddStorePage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [cities, setCities] = useState<{ id: string; name: string }[]>([]);
   const [form, setForm] = useState({
@@ -44,6 +44,9 @@ export default function AddStorePage() {
     const data = await res.json();
     setLoading(false);
     if (!res.ok) { setError(data.error || "حدث خطأ"); return; }
+    // Refresh the client session so the new STORE_OWNER role is reflected
+    // immediately (the jwt callback re-reads the role from the DB).
+    await update({});
     setSuccess(true);
   }
 
