@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 
 // Google Search Console site-verification endpoint.
-// Next.js intercepts "*.html" requests via the App Router instead of serving the
-// matching file from /public, so a Route Handler is the reliable way to expose
-// the verification token at the exact URL Google expects.
+// Served at /google9cf4fc8ca5076e7b.html via a rewrite in next.config.js
+// (Next.js does not register route segments whose folder name contains a dot,
+// and intercepts *.html requests before serving the matching /public file).
 export async function GET() {
   return new NextResponse("google-site-verification: google9cf4fc8ca5076e7b.html", {
     headers: {
