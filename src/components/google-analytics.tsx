@@ -1,26 +1,41 @@
-"use client";
-
-import Script from "next/script";
+import { headers } from "next/headers";
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
-export function GoogleAnalytics() {
+/**
+ * Google Analytics (gtag.js) — server-rendered into the HTML so Google's
+ * tag detector (which scans raw HTML for the gtag URL / measurement ID)
+ * can find it. The CSP nonce from middleware is applied to the inline
+ * script; the external script is allowed via the googletagmanager.com
+ * entry in script-src.
+ */
+export async function GoogleAnalytics() {
   if (!GA_ID) return null;
+
+  let nonce = "";
+  try {
+    nonce = (await headers()).get("x-nonce") || "";
+  } catch {
+    // headers() unavailable — render without nonce (CSP may block inline).
+  }
 
   return (
     <>
-      <Script
+      <script
+        async
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-        strategy="beforeInteractive"
       />
-      <Script id="gtag-init" strategy="beforeInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', '${GA_ID}');
-        `}
-      </Script>
+      <script
+        nonce={nonce}
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_ID}');
+          `,
+        }}
+      />
     </>
   );
 }

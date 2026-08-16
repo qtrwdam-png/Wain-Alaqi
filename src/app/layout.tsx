@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
-import { Cairo } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { APP_NAME } from "@/config/constants";
 import { SITE_URL, SITE_NAME_AR, SITE_LOCALE, absoluteUrl } from "@/lib/site";
@@ -10,7 +10,18 @@ import { SiteFooter } from "@/components/site-footer";
 import { WebSiteSchema, OrganizationSchema } from "@/components/structured-data";
 import { GoogleAnalytics } from "@/components/google-analytics";
 
-const cairo = Cairo({ subsets: ["arabic", "latin"], weight: ["400", "500", "600", "700", "800"], display: "swap" });
+const cairo = localFont({
+  src: [
+    { path: "./fonts/cairo-400.ttf", weight: "400", style: "normal" },
+    { path: "./fonts/cairo-500.ttf", weight: "500", style: "normal" },
+    { path: "./fonts/cairo-600.ttf", weight: "600", style: "normal" },
+    { path: "./fonts/cairo-700.ttf", weight: "700", style: "normal" },
+    { path: "./fonts/cairo-800.ttf", weight: "800", style: "normal" },
+  ],
+  display: "swap",
+  variable: "--font-cairo",
+  fallback: ["system-ui", "sans-serif"],
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -73,10 +84,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   await headers();
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
+      <head>
+        <GoogleAnalytics />
+      </head>
       <body className={`${cairo.className} min-h-screen flex flex-col`}>
         <WebSiteSchema />
         <OrganizationSchema />
-        <GoogleAnalytics />
         <Providers>
           <SiteHeader />
           <main className="flex-1">{children}</main>
