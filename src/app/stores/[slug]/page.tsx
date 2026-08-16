@@ -96,35 +96,40 @@ export default async function StorePage({ params }: { params: { slug: string } }
           { name: store.name, path: `/stores/${store.slug}` },
         ]}
       />
-      {/* Cover */}
-      <div className="relative h-36 w-full bg-gradient-to-l from-brand-200 to-brand-100 sm:h-64">
-        {store.coverImage && <img src={store.coverImage} alt={store.name} className="h-full w-full object-cover" loading="lazy" />}
-        {store.isDemo && <span className="absolute right-3 top-3 badge-blue sm:right-4 sm:top-4">بيانات تجريبية</span>}
-      </div>
+      {/* Cover + Header متداخل */}
+      <div className="relative">
+        <div className="relative h-44 w-full overflow-hidden bg-gradient-to-l from-brand-300 to-brand-100 sm:h-64">
+          {store.coverImage
+            ? <img src={store.coverImage} alt={store.name} className="h-full w-full object-cover" loading="lazy" />
+            : <div className="h-full w-full bg-gradient-to-l from-brand-300 via-brand-200 to-brand-100" />}
+          {store.isDemo && <span className="absolute right-3 top-3 badge-blue sm:right-4 sm:top-4">بيانات تجريبية</span>}
+        </div>
 
-      <div className="container-app">
-        <div className="-mt-10 flex flex-col gap-4 sm:-mt-12 sm:flex-row sm:items-end">
-          <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-gray-100 sm:h-24 sm:w-24">
-            {store.logo ? <img src={store.logo} alt={store.name} className="h-full w-full object-cover" loading="lazy" /> : <span className="text-3xl sm:text-4xl">🏪</span>}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl font-extrabold text-gray-900 sm:text-3xl">{store.name}</h1>
-              {store.verified && <VerifiedBadge size={20} />}
+        <div className="container-app -mt-12 sm:-mt-16">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-gray-100 sm:h-24 sm:w-24">
+              {store.logo ? <img src={store.logo} alt={store.name} className="h-full w-full object-cover" loading="lazy" /> : <span className="text-3xl sm:text-4xl">🏪</span>}
             </div>
-            {store.category && <Link href={`/categories/${store.category.slug}`} className="text-sm text-brand-600 hover:underline">{store.category.name}</Link>}
-            <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-gray-500">
-              <span>⭐ {store.rating > 0 ? store.rating.toFixed(1) : "—"} ({store.reviewCount} تقييم)</span>
-              <span>👁️ {store.views} مشاهدة</span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-xl font-extrabold text-gray-900 sm:text-3xl">{store.name}</h1>
+                {store.verified && <VerifiedBadge size={20} />}
+              </div>
+              {store.category && <Link href={`/categories/${store.category.slug}`} className="text-sm text-brand-600 hover:underline">{store.category.name}</Link>}
+              <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-gray-500">
+                <span>⭐ {store.rating > 0 ? store.rating.toFixed(1) : "—"} ({store.reviewCount} تقييم)</span>
+                <span>👁️ {store.views} مشاهدة</span>
+              </div>
             </div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {phoneHref && <a href={phoneHref} className="btn-primary">اتصل</a>}
-            {waHref && <a href={waHref} target="_blank" rel="noopener noreferrer" className="btn-accent">واتساب</a>}
-            {directionsHref && <a href={directionsHref} target="_blank" rel="noopener noreferrer" className="btn-secondary">الاتجاهات</a>}
+            <div className="flex flex-wrap gap-2">
+              {phoneHref && <a href={phoneHref} className="btn-primary">اتصل</a>}
+              {waHref && <a href={waHref} target="_blank" rel="noopener noreferrer" className="btn-accent">واتساب</a>}
+              {directionsHref && <a href={directionsHref} target="_blank" rel="noopener noreferrer" className="btn-secondary">الاتجاهات</a>}
+            </div>
           </div>
         </div>
 
+        <div className="container-app">
         <div className="mt-8 grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
             {store.description && (
@@ -181,6 +186,7 @@ export default async function StorePage({ params }: { params: { slug: string } }
               </div>
             )}
           </div>
+        </div>
         </div>
       </div>
     </div>
