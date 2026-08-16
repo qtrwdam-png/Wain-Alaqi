@@ -8,6 +8,7 @@ import { Providers } from "@/components/providers";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { WebSiteSchema, OrganizationSchema } from "@/components/structured-data";
+import { GoogleAnalytics } from "@/components/google-analytics";
 
 const cairo = Cairo({ subsets: ["arabic", "latin"], weight: ["400", "500", "600", "700", "800"], display: "swap" });
 
@@ -75,6 +76,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className={`${cairo.className} min-h-screen flex flex-col`}>
         <WebSiteSchema />
         <OrganizationSchema />
+        <GoogleAnalytics />
         <Providers>
           <SiteHeader />
           <main className="flex-1">{children}</main>

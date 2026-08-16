@@ -18,6 +18,7 @@ export function middleware(request: NextRequest) {
     "'self'",
     `'nonce-${nonce}'`,
     "'strict-dynamic'",
+    "https://www.googletagmanager.com",
     ...(isDev ? ["'unsafe-eval'"] : []),
   ].join(" ");
 
@@ -27,7 +28,7 @@ export function middleware(request: NextRequest) {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https:",
     "font-src 'self'",
-    "connect-src 'self' https://nominatim.openstreetmap.org https://overpass-api.de",
+    "connect-src 'self' https://nominatim.openstreetmap.org https://overpass-api.de https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
