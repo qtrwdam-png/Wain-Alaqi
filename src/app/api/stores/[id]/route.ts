@@ -14,7 +14,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
     return NextResponse.json({ error: "لا تملك صلاحية لتعديل هذا المتجر" }, { status: 403 });
   }
   const body = await req.json();
-  const allowed = ["name", "description", "phone", "whatsapp", "address", "logo", "coverImage", "latitude", "longitude", "openingHours"];
+  const allowed = ["name", "description", "phone", "whatsapp", "address", "logo", "coverImage", "latitude", "longitude", "openingHours", "cityId", "districtId"];
   const data: any = {};
   for (const k of allowed) if (body[k] !== undefined) data[k] = body[k];
   const updated = await prisma.store.update({ where: { id: params.id }, data });

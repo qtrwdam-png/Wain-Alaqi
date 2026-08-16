@@ -73,6 +73,7 @@ export async function requireStoreOwner() {
 export async function getOwnedStore(userId: string) {
   return prisma.store.findFirst({
     where: { ownerId: userId },
+    include: { city: true, district: true },
   });
 }
 
