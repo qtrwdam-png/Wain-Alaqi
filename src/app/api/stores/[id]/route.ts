@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { bustStoresCache } from "@/lib/cache-bust";
 
 type Ctx = { params: { id: string } };
 
@@ -18,5 +19,9 @@ export async function PATCH(req: Request, { params }: Ctx) {
   const data: any = {};
   for (const k of allowed) if (body[k] !== undefined) data[k] = body[k];
   const updated = await prisma.store.update({ where: { id: params.id }, data });
+
+  // Bust stores cache so updated data appears on public pages
+  bustStoresCache(updated.slug);
+
   return NextResponse.json({ ok: true, store: updated });
 }

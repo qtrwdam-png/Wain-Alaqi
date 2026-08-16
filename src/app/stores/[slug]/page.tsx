@@ -8,15 +8,19 @@ import { StoreMap } from "@/components/store-map";
 import { ReviewsSection } from "@/components/reviews-section";
 import { LocalBusinessSchema, BreadcrumbSchema } from "@/components/structured-data";
 import { absoluteUrl } from "@/lib/site";
+import { getStoreBySlug } from "@/lib/cached-queries";
 
-export const dynamic = "force-dynamic";
+export const dynamicParams = true;
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const slug = decodeURIComponent(params.slug);
-  const store = await prisma.store.findUnique({
-    where: { slug },
-    include: { category: true, city: { select: { name: true } } },
-  });
+  let store: any = null;
+  try {
+    store = await getStoreBySlug(slug);
+  } catch {
+    return { title: "المتجر غير موجود" };
+  }
   if (!store) return { title: "المتجر غير موجود" };
   const title = `${store.name} — ${store.category?.name || "متجر"} في الرمثا`;
   const description =
@@ -45,21 +49,13 @@ export default async function StorePage({ params }: { params: { slug: string } }
   const slug = decodeURIComponent(params.slug);
   let store: any = null;
   try {
-    store = await prisma.store.findUnique({
-      where: { slug },
-      include: {
-        category: true,
-        city: { select: { name: true } },
-        owner: { select: { name: true } },
-        products: { where: { active: true }, orderBy: { updatedAt: "desc" } },
-      },
-    });
+    store = await getStoreBySlug(slug);
   } catch {
     // DB not ready
   }
   if (!store || store.status !== "APPROVED") notFound();
 
-  // increment views (fire and forget)
+  // increment views (fire and forget) — non-blocking, doesn't affect cache
   await prisma.store.update({ where: { id: store.id }, data: { views: { increment: 1 } } }).catch(() => {});
 
   const phoneHref = store.phone ? `tel:${store.phone.replace(/\s/g, "")}` : null;

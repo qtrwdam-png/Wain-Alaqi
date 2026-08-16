@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { productSchema } from "@/lib/validations";
 import { slugify } from "@/lib/utils";
 import { logger } from "@/lib/logger";
+import { bustProductsCache } from "@/lib/cache-bust";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -72,5 +73,9 @@ export async function POST(req: Request) {
     },
   });
   logger.info("product.created", { productId: product.id, storeId: store.id });
+
+  // Bust products cache so the new product appears on public store pages
+  bustProductsCache(store.slug);
+
   return NextResponse.json({ ok: true, product }, { status: 201 });
 }

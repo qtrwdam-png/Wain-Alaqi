@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
+import { bustCategoriesCache } from "@/lib/cache-bust";
 
 async function requireStaff() {
   const session = await getServerSession(authOptions);
@@ -25,5 +26,9 @@ export async function POST(req: Request) {
   let n = 1;
   while (await prisma.category.findUnique({ where: { slug } })) slug = `${slugify(name)}-${n++}`;
   const category = await prisma.category.create({ data: { name, slug, description, icon, image, sortOrder: sortOrder || 0, active: active ?? true } });
+
+  // Bust categories cache so the new category appears on public pages
+  bustCategoriesCache(category.slug);
+
   return NextResponse.json({ ok: true, category }, { status: 201 });
 }

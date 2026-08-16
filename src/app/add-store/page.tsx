@@ -5,12 +5,13 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { fetchWithRetry } from "@/lib/fetch-retry";
 import { LocationPickerMap } from "@/components/location-picker-map";
+import { DistrictSearchSelect } from "@/components/district-search-select";
+import { ImageInput } from "@/components/image-input";
 
 export default function AddStorePage() {
   const { data: session, status, update } = useSession();
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [cities, setCities] = useState<{ id: string; name: string }[]>([]);
-  const [districts, setDistricts] = useState<{ id: string; name: string }[]>([]);
   const [form, setForm] = useState({
     storeName: "", categoryId: "", cityId: "", districtId: "", description: "", phone: "", whatsapp: "", address: "",
     latitude: undefined as number | undefined, longitude: undefined as number | undefined,
@@ -32,16 +33,8 @@ export default function AddStorePage() {
       setCities(ci.cities || []);
       if (ci.cities?.[0]) setForm((f) => ({ ...f, cityId: ci.cities[0].id }));
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Fetch districts when the selected city changes
-  useEffect(() => {
-    if (!form.cityId) { setDistricts([]); return; }
-    fetchWithRetry(`/api/districts?cityId=${form.cityId}`).then((r) => r.json()).then((d) => {
-      setDistricts(d.districts || []);
-      setForm((f) => ({ ...f, districtId: "" }));
-    }).catch(() => setDistricts([]));
-  }, [form.cityId]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -139,17 +132,16 @@ export default function AddStorePage() {
             </div>
             <div><label className="label">العنوان *</label><input className="input" required value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="مثال: شارع الملك حسين، الرمثا" /></div>
             <div><label className="label">المدينة *</label>
-              <select className="input" required value={form.cityId} onChange={(e) => setForm({ ...form, cityId: e.target.value })}>
+              <select className="input" required value={form.cityId} onChange={(e) => setForm({ ...form, cityId: e.target.value, districtId: "" })}>
                 <option value="">اختر المدينة</option>
                 {cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
-            <div><label className="label">الحي / المنطقة</label>
-              <select className="input" value={form.districtId} onChange={(e) => setForm({ ...form, districtId: e.target.value })} disabled={districts.length === 0}>
-                <option value="">{districts.length === 0 ? "لا توجد أحياء مسجلة" : "اختر الحي (اختياري)"}</option>
-                {districts.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-              </select>
-            </div>
+            <DistrictSearchSelect
+              cityId={form.cityId}
+              value={form.districtId}
+              onChange={(districtId) => setForm({ ...form, districtId })}
+            />
             <div>
               <label className="label">موقع المتجر على الخريطة *</label>
               <p className="mb-2 text-xs text-gray-400">ابحث عن مكان متجرك أو اسحب الدبوس الأزرق إلى الموقع الصحيح، ثم اضغط حفظ الموقع.</p>
@@ -164,8 +156,8 @@ export default function AddStorePage() {
             </div>
             <div><label className="label">ساعات العمل</label><input className="input" value={form.openingHours} onChange={(e) => setForm({ ...form, openingHours: e.target.value })} placeholder="السبت-الخميس: 9 صباحاً - 9 مساءً" /></div>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div><label className="label">رابط الشعار</label><input className="input" value={form.logo} onChange={(e) => setForm({ ...form, logo: e.target.value })} placeholder="https://…" /></div>
-              <div><label className="label">رابط صورة الغلاف</label><input className="input" value={form.coverImage} onChange={(e) => setForm({ ...form, coverImage: e.target.value })} placeholder="https://…" /></div>
+              <ImageInput label="شعار المتجر" value={form.logo} onChange={(logo) => setForm({ ...form, logo })} hint="ارفع صورة من جهازك أو الصق رابطاً خارجياً" kind="store" />
+              <ImageInput label="صورة الغلاف" value={form.coverImage} onChange={(coverImage) => setForm({ ...form, coverImage })} hint="ارفع صورة من جهازك أو الصق رابطاً خارجياً" kind="store" />
             </div>
           </fieldset>
 

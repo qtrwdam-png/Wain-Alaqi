@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { productSchema } from "@/lib/validations";
 import { logger } from "@/lib/logger";
+import { bustProductsCache } from "@/lib/cache-bust";
 
 type Ctx = { params: { id: string } };
 
@@ -43,6 +44,10 @@ export async function PATCH(req: Request, { params }: Ctx) {
     const data: any = { ...parsed.data };
     if (parsed.data.availability) data.lastStockUpdate = new Date();
     const updated = await prisma.product.update({ where: { id: params.id }, data });
+
+    // Bust products cache so updated data appears on public store pages
+    bustProductsCache(product.store.slug);
+
     return NextResponse.json({ ok: true, product: updated });
   } catch (error) {
     logger.error("api.admin.products.patch", { error: String(error) });
@@ -58,6 +63,10 @@ export async function DELETE(req: Request, { params }: Ctx) {
     if (!product) return NextResponse.json({ error: "لا تملك صلاحية" }, { status: 403 });
     await prisma.product.delete({ where: { id: params.id } });
     logger.info("product.deleted", { productId: params.id });
+
+    // Bust products cache so the deleted product is removed from public pages
+    bustProductsCache(product.store.slug);
+
     return NextResponse.json({ ok: true });
   } catch (error) {
     logger.error("api.admin.products.delete", { error: String(error) });

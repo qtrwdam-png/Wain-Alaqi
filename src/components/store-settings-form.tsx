@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { fetchWithRetry } from "@/lib/fetch-retry";
+import { ImageInput } from "@/components/image-input";
+import { DistrictSearchSelect } from "@/components/district-search-select";
 
 type StoreWithLocation = {
   id: string;
@@ -25,7 +27,6 @@ export function StoreSettingsForm({ store }: { store: StoreWithLocation }) {
     cityId: store.cityId || "", districtId: store.districtId || "",
   });
   const [cities, setCities] = useState<{ id: string; name: string }[]>([]);
-  const [districts, setDistricts] = useState<{ id: string; name: string }[]>([]);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -33,13 +34,6 @@ export function StoreSettingsForm({ store }: { store: StoreWithLocation }) {
   useEffect(() => {
     fetchWithRetry("/api/cities").then((r) => r.json()).then((d) => setCities(d.cities || [])).catch(() => {});
   }, []);
-
-  useEffect(() => {
-    if (!form.cityId) { setDistricts([]); return; }
-    fetchWithRetry(`/api/districts?cityId=${form.cityId}`).then((r) => r.json()).then((d) => {
-      setDistricts(d.districts || []);
-    }).catch(() => setDistricts([]));
-  }, [form.cityId]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -72,17 +66,15 @@ export function StoreSettingsForm({ store }: { store: StoreWithLocation }) {
             {cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
-        <div>
-          <label className="label">الحي / المنطقة</label>
-          <select className="input" value={form.districtId} onChange={(e) => setForm({ ...form, districtId: e.target.value })} disabled={districts.length === 0}>
-            <option value="">{districts.length === 0 ? "لا توجد أحياء مسجلة" : "اختر الحي (اختياري)"}</option>
-            {districts.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-          </select>
-        </div>
+        <DistrictSearchSelect
+          cityId={form.cityId}
+          value={form.districtId}
+          onChange={(districtId) => setForm({ ...form, districtId })}
+        />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <div><label className="label">رابط الشعار</label><input className="input" value={form.logo} onChange={(e) => setForm({ ...form, logo: e.target.value })} /></div>
-        <div><label className="label">رابط صورة الغلاف</label><input className="input" value={form.coverImage} onChange={(e) => setForm({ ...form, coverImage: e.target.value })} /></div>
+        <ImageInput label="شعار المتجر" value={form.logo} onChange={(logo) => setForm({ ...form, logo })} hint="ارفع صورة من جهازك أو الصق رابطاً خارجياً" kind="store" />
+        <ImageInput label="صورة الغلاف" value={form.coverImage} onChange={(coverImage) => setForm({ ...form, coverImage })} hint="ارفع صورة من جهازك أو الصق رابطاً خارجياً" kind="store" />
       </div>
       {error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
       {saved && <p className="rounded-lg bg-brand-50 p-3 text-sm text-brand-700">تم حفظ التغييرات بنجاح.</p>}

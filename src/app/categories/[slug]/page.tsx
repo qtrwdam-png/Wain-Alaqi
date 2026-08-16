@@ -4,11 +4,18 @@ import Link from "next/link";
 import { StoreCard } from "@/components/store-card";
 import { CategoryIcon } from "@/components/category-icon";
 import { BreadcrumbSchema, ItemListSchema } from "@/components/structured-data";
+import { getCategoryWithStores } from "@/lib/cached-queries";
 
-export const dynamic = "force-dynamic";
+export const dynamicParams = true;
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const cat = await prisma.category.findUnique({ where: { slug: params.slug } });
+  let cat: any = null;
+  try {
+    cat = await prisma.category.findUnique({ where: { slug: params.slug } });
+  } catch {
+    return { title: "القطاع غير موجود" };
+  }
   if (!cat) return { title: "القطاع غير موجود" };
   const title = `${cat.name} في الرمثا`;
   const description = cat.description || `متاجر ومنتجات ${cat.name} في الرمثا، الأردن — تصفح المتاجر والأسعار وأماكن البيع.`;
@@ -27,17 +34,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 export default async function CategoryPage({ params }: { params: { slug: string } }) {
   let category: any = null;
   try {
-    category = await prisma.category.findUnique({
-      where: { slug: params.slug },
-      include: {
-        stores: {
-          where: { status: "APPROVED" },
-          orderBy: { rating: "desc" },
-          include: { category: true },
-        },
-        _count: { select: { products: { where: { active: true } } } },
-      },
-    });
+    category = await getCategoryWithStores(params.slug);
   } catch {
     // DB not ready
   }

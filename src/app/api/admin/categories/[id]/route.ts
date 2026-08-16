@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import { slugify } from "@/lib/utils";
+import { bustCategoriesCache } from "@/lib/cache-bust";
 
 type Ctx = { params: { id: string } };
 
@@ -40,6 +41,9 @@ export async function DELETE(_req: Request, { params }: Ctx) {
   ]);
   logger.audit(user.id, "category.delete", "category", params.id);
 
+  // Bust categories cache so the deleted category is removed from public pages
+  bustCategoriesCache(category.slug);
+
   return NextResponse.json({ ok: true });
 }
 
@@ -75,6 +79,9 @@ export async function PATCH(req: Request, { params }: Ctx) {
     },
   });
   logger.audit(user.id, "category.update", "category", params.id);
+
+  // Bust categories cache so updated data appears on public pages
+  bustCategoriesCache(updated.slug);
 
   return NextResponse.json({ ok: true, category: updated });
 }

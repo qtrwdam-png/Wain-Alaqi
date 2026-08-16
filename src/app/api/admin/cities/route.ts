@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
+import { bustCitiesCache } from "@/lib/cache-bust";
 
 async function requireStaff() {
   const session = await getServerSession(authOptions);
@@ -34,5 +35,9 @@ export async function POST(req: Request) {
   const city = await prisma.city.create({
     data: { name, slug, country: country || "الأردن", latitude: Number(latitude), longitude: Number(longitude) },
   });
+
+  // Bust cities cache so the new city appears in dropdowns
+  bustCitiesCache();
+
   return NextResponse.json({ ok: true, city }, { status: 201 });
 }

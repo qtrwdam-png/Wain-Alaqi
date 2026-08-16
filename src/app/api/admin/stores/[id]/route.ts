@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { logger } from "@/lib/logger";
+import { bustStoresCache } from "@/lib/cache-bust";
 
 type Ctx = { params: { id: string } };
 
@@ -37,6 +38,9 @@ export async function PATCH(req: Request, { params }: Ctx) {
 
   const updated = await prisma.store.update({ where: { id: params.id }, data: { status, verified, ...extra } });
   logger.audit(admin.id, `store.${action}`, "store", params.id);
+
+  // Bust stores cache so status changes appear on public pages
+  bustStoresCache(updated.slug);
 
   // Create notification for the store owner
   const typeMap: Record<string, string> = {
@@ -76,7 +80,12 @@ export async function PATCH(req: Request, { params }: Ctx) {
 export async function DELETE(req: Request, { params }: Ctx) {
   const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ error: "لا تملك صلاحية" }, { status: 403 });
+  const store = await prisma.store.findUnique({ where: { id: params.id }, select: { slug: true } });
   await prisma.store.delete({ where: { id: params.id } });
   logger.audit(admin.id, "store.delete", "store", params.id);
+
+  // Bust stores cache so the deleted store is removed from public pages
+  bustStoresCache(store?.slug);
+
   return NextResponse.json({ ok: true });
 }

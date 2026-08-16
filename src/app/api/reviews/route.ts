@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { reviewSchema } from "@/lib/validations";
 import { logger } from "@/lib/logger";
+import { bustReviewsCache, bustStoresCache } from "@/lib/cache-bust";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -50,6 +51,11 @@ export async function POST(req: Request) {
     });
 
     logger.info("review.created", { reviewId: review.id, storeId });
+
+    // Bust reviews + stores cache (rating changed) so updated data appears
+    bustReviewsCache(store.slug);
+    bustStoresCache(store.slug);
+
     return NextResponse.json({ ok: true, review }, { status: 201 });
   } catch (e) {
     return NextResponse.json({ error: "حدث خطأ" }, { status: 500 });

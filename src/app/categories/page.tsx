@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
 import { CategoryIcon } from "@/components/category-icon";
 import { ItemListSchema } from "@/components/structured-data";
+import { getCategoriesWithStoreCount } from "@/lib/cached-queries";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export const metadata = {
   title: "قطاعات الرمثا",
@@ -14,11 +14,7 @@ export const metadata = {
 export default async function CategoriesPage() {
   let categories: any[] = [];
   try {
-    categories = await prisma.category.findMany({
-      where: { active: true },
-      orderBy: { sortOrder: "asc" },
-      include: { _count: { select: { stores: { where: { status: "APPROVED" } } } } },
-    });
+    categories = await getCategoriesWithStoreCount();
   } catch {
     // DB not ready
   }

@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { storeRegistrationSchema } from "@/lib/validations";
 import { slugify } from "@/lib/utils";
 import { logger } from "@/lib/logger";
+import { bustStoresCache } from "@/lib/cache-bust";
 
 export const dynamic = "force-dynamic";
 
@@ -72,6 +73,10 @@ export async function POST(req: Request) {
     });
 
     logger.info("store.registered", { storeId: result.store.id, ownerId: session.user.id });
+
+    // Bust stores cache so the new store appears on public pages once approved
+    bustStoresCache(result.store.slug);
+
     return NextResponse.json({ ok: true, storeId: result.store.id, status: "PENDING_REVIEW" }, { status: 201 });
   } catch (e) {
     logger.error("store.register.failed", { error: String(e) });

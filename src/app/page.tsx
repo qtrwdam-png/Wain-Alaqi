@@ -1,23 +1,17 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { prisma } from "@/lib/prisma";
 import { SearchBox } from "@/components/search-box";
 import { APP_NAME, APP_TAGLINE } from "@/config/constants";
 import { CategoryCard } from "@/components/category-card";
 import { StoreCard } from "@/components/store-card";
 import { Content } from "@/lib/content";
+import { getCategories, getFeaturedStores, getPopularSearches } from "@/lib/cached-queries";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
-async function getPopularSearches() {
+async function getPopular() {
   try {
-    const rows = await prisma.searchQuery.groupBy({
-      by: ["query"],
-      _count: { query: true },
-      orderBy: { _count: { query: "desc" } },
-      take: 8,
-    });
-    return rows.map((r) => r.query);
+    return await getPopularSearches();
   } catch {
     return [];
   }
@@ -29,14 +23,9 @@ export default async function HomePage() {
   let popular: string[] = [];
   try {
     [categories, featuredStores, popular] = await Promise.all([
-      prisma.category.findMany({ where: { active: true }, orderBy: { sortOrder: "asc" } }),
-      prisma.store.findMany({
-        where: { status: "APPROVED", isFeatured: true },
-        take: 8,
-        orderBy: { rating: "desc" },
-        include: { category: true },
-      }),
-      getPopularSearches(),
+      getCategories(),
+      getFeaturedStores(),
+      getPopular(),
     ]);
   } catch {
     // DB not ready — render with empty data

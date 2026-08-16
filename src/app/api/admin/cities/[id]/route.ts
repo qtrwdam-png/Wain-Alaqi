@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { bustCitiesCache } from "@/lib/cache-bust";
 
 type Ctx = { params: { id: string } };
 
@@ -29,5 +30,9 @@ export async function DELETE(_req: Request, { params }: Ctx) {
   }
 
   await prisma.city.delete({ where: { id: params.id } });
+
+  // Bust cities cache so the deleted city is removed from dropdowns
+  bustCitiesCache();
+
   return NextResponse.json({ ok: true });
 }

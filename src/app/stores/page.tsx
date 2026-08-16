@@ -1,9 +1,11 @@
-import { prisma } from "@/lib/prisma";
 import { StoreCard } from "@/components/store-card";
 import Link from "next/link";
 import { ItemListSchema } from "@/components/structured-data";
+import { prisma } from "@/lib/prisma";
+import { getCategories } from "@/lib/cached-queries";
 
 export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "المتاجر في الرمثا",
   description: "تصفح جميع المتاجر المعتمدة في الرمثا، الأردن — متاجر وقطاعات وأماكن البيع والأسعار.",
@@ -20,8 +22,8 @@ export default async function StoresPage({ searchParams }: { searchParams: { cat
   let categories: any[] = [];
   try {
     [stores, categories] = await Promise.all([
-      prisma.store.findMany({ where, include: { category: true }, orderBy: { rating: "desc" } }),
-      prisma.category.findMany({ where: { active: true }, orderBy: { sortOrder: "asc" } }),
+      prisma.store.findMany({ where, include: { category: true, city: { select: { name: true } } }, orderBy: { rating: "desc" } }),
+      getCategories(),
     ]);
   } catch {
     // DB not ready

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { fetchWithRetry } from "@/lib/fetch-retry";
+import { ImageInput } from "@/components/image-input";
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -58,7 +59,7 @@ export default function NewProductPage() {
             </select>
           </div>
         </div>
-        <div><label className="label">رابط الصورة</label><input className="input" value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} placeholder="https://…" /></div>
+        <ImageInput label="صورة المنتج" value={form.image} onChange={(image) => setForm({ ...form, image })} hint="ارفع صورة من جهازك أو الصق رابطاً خارجياً" kind="product" />
         <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} /> نشط (ظاهر للعامة)</label>
         {error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
         <button type="submit" disabled={loading} className="btn-primary w-full">{loading ? "جارٍ الحفظ…" : "حفظ المنتج"}</button>

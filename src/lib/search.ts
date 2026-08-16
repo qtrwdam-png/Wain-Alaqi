@@ -1,4 +1,5 @@
 import { prisma } from "./prisma";
+import { bustSearchesCache } from "./cache-bust";
 
 export type SearchFilters = {
   categoryId?: string;
@@ -171,6 +172,8 @@ export async function searchProducts(query: string, filters: SearchFilters = {})
         results: results.length,
       },
     });
+    // Bust popular searches cache so the new query trends on the homepage
+    bustSearchesCache();
   } catch {
     // non-critical
   }
