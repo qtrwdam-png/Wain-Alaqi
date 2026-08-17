@@ -40,10 +40,10 @@ export default async function StoresPage({ searchParams }: { searchParams: { cat
       <h1 className="text-2xl font-extrabold text-gray-900 sm:text-3xl">المتاجر</h1>
       <p className="mt-2 text-gray-500">تصفح جميع المتاجر في الرمثا.</p>
 
-      <div className="mt-6 flex flex-wrap gap-2">
-        <Link href="/stores" className={`rounded-full px-3 py-1.5 text-sm ${!searchParams.cat ? "bg-brand-600 text-white" : "bg-white ring-1 ring-gray-200"}`}>الكل</Link>
+      <div className="no-scrollbar -mx-4 mt-6 flex gap-1.5 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+        <Link href="/stores" className={`shrink-0 rounded-full px-2.5 py-1 text-xs ${!searchParams.cat ? "bg-brand-600 text-white" : "bg-white ring-1 ring-gray-200"}`}>الكل</Link>
         {categories.map((c) => (
-          <Link key={c.id} href={`/stores?cat=${c.id}`} className={`rounded-full px-3 py-1.5 text-sm ${searchParams.cat === c.id ? "bg-brand-600 text-white" : "bg-white ring-1 ring-gray-200"}`}>
+          <Link key={c.id} href={`/stores?cat=${c.id}`} className={`shrink-0 rounded-full px-2.5 py-1 text-xs ${searchParams.cat === c.id ? "bg-brand-600 text-white" : "bg-white ring-1 ring-gray-200"}`}>
             {c.name}
           </Link>
         ))}

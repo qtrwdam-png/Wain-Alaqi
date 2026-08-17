@@ -152,3 +152,12 @@ body {
   direction: ltr;
   unicode-bidi: embed;
 }
+
+/* Hide scrollbar but keep horizontal scroll for chip rows (categories filter) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
