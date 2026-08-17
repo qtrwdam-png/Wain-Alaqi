@@ -39,7 +39,17 @@ export function SiteFooter() {
           </div>
         </div>
         <div className="mt-8 border-t border-gray-100 pt-6 text-center text-sm text-gray-400">
-          © {new Date().getFullYear()} {APP_NAME_EN}. جميع الحقوق محفوظة.
+          <p>© {new Date().getFullYear()} {APP_NAME_EN}. جميع الحقوق محفوظة.</p>
+          <p className="mt-1">
+            تصميم وتطوير{" "}
+            <a
+              href="/about"
+              className="font-medium text-gray-500 hover:text-brand-700"
+              aria-label="فايز أبو العيلة — مطور المنصة"
+            >
+              فايز أبو العيلة
+            </a>
+          </p>
         </div>
       </div>
     </footer>

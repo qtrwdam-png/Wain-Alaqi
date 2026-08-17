@@ -9,6 +9,7 @@ import { ReviewsSection } from "@/components/reviews-section";
 import { LocalBusinessSchema, BreadcrumbSchema } from "@/components/structured-data";
 import { absoluteUrl } from "@/lib/site";
 import { getStoreBySlug } from "@/lib/cached-queries";
+import { buildStoreSeoTitle, buildStoreSeoDescription, buildStoreAlternateNames, buildStoreSeoIntro } from "@/lib/seo";
 
 export const dynamicParams = true;
 export const revalidate = 3600;
@@ -22,10 +23,12 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     return { title: "المتجر غير موجود" };
   }
   if (!store) return { title: "المتجر غير موجود" };
-  const title = `${store.name} — ${store.category?.name || "متجر"} في الرمثا`;
-  const description =
-    store.description || `تفاصيل متجر ${store.name}${store.category?.name ? ` (${store.category.name})` : ""} في الرمثا: المنتجات والأسعار والموقع ووسائل التواصل.`;
+  // Note: the root layout's `title.template` appends " | وين ألاقي؟"
+  // automatically, so we return the bare title here to avoid duplication.
+  const title = buildStoreSeoTitle(store);
+  const description = buildStoreSeoDescription(store);
   const images = store.coverImage || store.logo ? [store.coverImage || store.logo!] : undefined;
+  const keywords = buildStoreAlternateNames(store);
   return {
     title,
     description,
@@ -42,6 +45,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       title,
       description,
     },
+    keywords: keywords.length ? keywords : undefined,
   };
 }
 
@@ -61,6 +65,8 @@ export default async function StorePage({ params }: { params: { slug: string } }
   const phoneHref = store.phone ? `tel:${store.phone.replace(/\s/g, "")}` : null;
   const waHref = store.whatsapp ? `https://wa.me/${store.whatsapp.replace(/[^\d]/g, "")}` : null;
   const directionsHref = store.latitude && store.longitude ? `https://www.google.com/maps/dir/?api=1&destination=${store.latitude},${store.longitude}` : null;
+  const seoIntro = buildStoreSeoIntro(store);
+  const alternateNames = buildStoreAlternateNames(store);
 
   return (
     <div>
@@ -80,6 +86,8 @@ export default async function StorePage({ params }: { params: { slug: string } }
           reviewCount: store.reviewCount,
           category: store.category ? { name: store.category.name } : null,
           city: store.city ? { name: store.city.name } : null,
+          owner: store.owner ? { name: store.owner.name } : null,
+          alternateNames,
         }}
       />
       <BreadcrumbSchema
@@ -134,6 +142,10 @@ export default async function StorePage({ params }: { params: { slug: string } }
                 <p className="text-gray-600">{store.description}</p>
               </div>
             )}
+
+            <div className={`card p-4 sm:p-6${store.description ? " mt-6" : ""}`}>
+              <p className="text-sm leading-relaxed text-gray-600 sm:text-base">{seoIntro}</p>
+            </div>
 
             <div className="mt-6">
               <h2 className="mb-4 text-lg font-bold">المنتجات ({store.products.length})</h2>

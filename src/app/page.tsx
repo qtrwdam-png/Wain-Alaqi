@@ -5,13 +5,16 @@ import { APP_NAME, APP_TAGLINE } from "@/config/constants";
 import { CategoryCard } from "@/components/category-card";
 import { StoreCard } from "@/components/store-card";
 import { Content } from "@/lib/content";
-import { getCategories, getFeaturedStores, getPopularSearches } from "@/lib/cached-queries";
+import { getCategories, getFeaturedStores } from "@/lib/cached-queries";
+import { getTrendingKeywords, seedPinnedKeywords } from "@/lib/keywords";
 
 export const revalidate = 3600;
 
 async function getPopular() {
   try {
-    return await getPopularSearches();
+    // ensure pinned (fixed) keywords exist before reading trending list
+    await seedPinnedKeywords();
+    return await getTrendingKeywords();
   } catch {
     return [];
   }
@@ -34,7 +37,10 @@ export default async function HomePage() {
   const hero = await Content.getHomeHero();
   const sectionOrder = await Content.get("home_section_order");
   const featuredFirst = sectionOrder === "featured_first";
-  const popularDefault = popular.length ? popular : ["بطارية كيا سيراتو", "شاحن آيفون 20 واط", "سباك", "قطع غيار تويوتا", "دهانات"];
+  // getPopular() returns the pinned (fixed) keywords + any trending dynamic
+  // keywords (auto-expire after 3 days of no searches). It never returns the
+  // old demo fallback list.
+  const popularDefault = popular;
 
   const categoriesSection = (
     <section className="container-app py-10 sm:py-12">

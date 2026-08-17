@@ -22,7 +22,7 @@ export function WebSiteSchema() {
         "@id": `${SITE_URL}/#website`,
         url: SITE_URL,
         name: SITE_NAME_AR,
-        alternateName: SITE_NAME_EN,
+        alternateName: [SITE_NAME_EN, "وين الاقي", "وين الا قي", "وينألاقي", "Wain Alaqi", "Wain Alaqi?"],
         description: SITE_TAGLINE,
         inLanguage: "ar-JO",
         potentialAction: {
@@ -48,13 +48,19 @@ export function OrganizationSchema() {
         "@type": "Organization",
         "@id": `${SITE_URL}/#organization`,
         name: SITE_NAME_AR,
-        alternateName: SITE_NAME_EN,
+        alternateName: [SITE_NAME_EN, "وين الاقي", "وين الا قي", "وينألاقي", "Wain Alaqi", "Wain Alaqi?"],
         url: SITE_URL,
         logo: {
           "@type": "ImageObject",
           url: absoluteUrl("/logo.png"),
         },
         description: SITE_TAGLINE,
+        founder: {
+          "@type": "Person",
+          name: "فايز أبو العيلة",
+          alternateName: ["فايز محمد", "Fayiz Abu Alaila", "Fayiz Mohammad", "Fayiz"],
+          jobTitle: "مطوّر برمجيات",
+        },
         areaServed: {
           "@type": "City",
           name: SITE_GEO.addressLocality,
@@ -111,6 +117,8 @@ export function LocalBusinessSchema({
     reviewCount?: number;
     category?: { name: string } | null;
     city?: { name?: string | null } | null;
+    owner?: { name?: string | null } | null;
+    alternateNames?: string[];
   };
 }) {
   const data: Record<string, unknown> = {
@@ -142,8 +150,17 @@ export function LocalBusinessSchema({
   if (store.category?.name) {
     data["@type"] = ["LocalBusiness", "Store"];
     data.category = store.category.name;
+    // helps match "category in city" style queries
+    data.knowsAbout = [store.category.name, `${store.category.name} في ${store.city?.name || SITE_GEO.addressLocality}`];
   }
   if (store.logo) data.logo = store.logo;
+  if (store.alternateNames && store.alternateNames.length) {
+    data.alternateName = store.alternateNames;
+  }
+  const ownerName = store.owner?.name?.trim();
+  if (ownerName && !ownerName.includes("@")) {
+    data.founder = { "@type": "Person", name: ownerName };
+  }
   if (typeof store.latitude === "number" && typeof store.longitude === "number") {
     data.geo = {
       "@type": "GeoCoordinates",

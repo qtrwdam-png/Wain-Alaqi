@@ -262,6 +262,25 @@ model SearchQuery {
   @@map("search_queries")
 }
 
+// Trending keywords surfaced on the homepage "الأكثر بحثاً" section.
+// A small set of fixed keywords is always shown (isPinned=true). Dynamic
+// keywords are promoted from real user searches and auto-expire when nobody
+// searches for them for 3 consecutive days (lastSearchedAt older than 3 days).
+model PopularKeyword {
+  id             String   @id @default(cuid())
+  keyword        String   @unique
+  isPinned       Boolean  @default(false) @map("is_pinned")
+  // how many times this keyword has been searched (for ordering "most popular")
+  searchCount    Int      @default(0) @map("search_count")
+  lastSearchedAt DateTime @default(now()) @map("last_searched_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([isPinned])
+  @@index([lastSearchedAt])
+  @@map("popular_keywords")
+}
+
 // ---------------------------------------------------------------------------
 // SearchRequest — طلبات "لم أجد ما أبحث عنه"
 // ---------------------------------------------------------------------------

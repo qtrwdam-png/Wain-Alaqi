@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { bustSearchesCache } from "./cache-bust";
+import { recordSearchKeyword } from "./keywords";
 
 export type SearchFilters = {
   categoryId?: string;
@@ -172,8 +173,9 @@ export async function searchProducts(query: string, filters: SearchFilters = {})
         results: results.length,
       },
     });
-    // Bust popular searches cache so the new query trends on the homepage
-    bustSearchesCache();
+    // Also feed the trending-keywords system (filters noise/bots/empty
+    // results, upserts PopularKeyword with lastSearchedAt for 3-day expiry).
+    await recordSearchKeyword(q, results.length);
   } catch {
     // non-critical
   }

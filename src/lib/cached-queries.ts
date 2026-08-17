@@ -99,6 +99,7 @@ export const getStoreBySlug = unstable_cache(
         category: true,
         city: { select: { name: true } },
         district: { select: { name: true } },
+        owner: { select: { name: true } },
         products: { orderBy: { createdAt: "desc" } },
       },
     });
