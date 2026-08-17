@@ -39,26 +39,25 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.role = (user as any).role;
+        token.roleCheckedAt = Date.now();
       }
       // Re-read the role from the DB so role changes (e.g. USER → STORE_OWNER
-      // after store registration) are reflected without requiring a fresh login.
-      // `user` is only present at sign-in, so we skip the extra query then.
-      if (token.id && !user) {
+      // after store registration) are reflected without requiring a fresh
+      // login — but only at most once per ROLE_CACHE_TTL to avoid a DB hit on
+      // every authenticated request. `trigger === "update"` forces an
+      // immediate refresh (used by /add-store right after store registration).
+      const ROLE_CACHE_TTL = 60_000; // 60s
+      const stale =
+        !token.roleCheckedAt || Date.now() - (token.roleCheckedAt as number) > ROLE_CACHE_TTL;
+      if (token.id && (trigger === "update" || (!user && stale))) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },
           select: { role: true },
         });
         if (dbUser) {
           token.role = dbUser.role;
+          token.roleCheckedAt = Date.now();
         }
-      }
-      // Allow explicit session updates (e.g. via update()) to refresh the role.
-      if (trigger === "update" && token.id) {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.id as string },
-          select: { role: true },
-        });
-        if (dbUser) token.role = dbUser.role;
       }
       return token;
     },

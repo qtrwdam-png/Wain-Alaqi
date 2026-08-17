@@ -164,21 +164,17 @@ export async function searchProducts(query: string, filters: SearchFilters = {})
     }
   });
 
-  // record search query for analytics
-  try {
-    await prisma.searchQuery.create({
-      data: {
-        query: q,
-        cityId: filters.cityId,
-        results: results.length,
-      },
-    });
-    // Also feed the trending-keywords system (filters noise/bots/empty
-    // results, upserts PopularKeyword with lastSearchedAt for 3-day expiry).
-    await recordSearchKeyword(q, results.length);
-  } catch {
-    // non-critical
-  }
+  // Record search query for analytics + trending keywords. Fire-and-forget
+  // (non-blocking) so the search response isn't delayed by DB writes —
+  // analytics are non-critical and must not slow down the user's search.
+  queueMicrotask(() => {
+    prisma.searchQuery
+      .create({ data: { query: q, cityId: filters.cityId, results: results.length } })
+      .then(() => recordSearchKeyword(q, results.length))
+      .catch(() => {
+        // non-critical: analytics/trending must never break the search
+      });
+  });
 
   return results;
 }

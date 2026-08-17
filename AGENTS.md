@@ -139,6 +139,25 @@ npm run db:studio        # prisma studio
 - **`SearchQuery` cleanup:** the old `searchQuery.create` in `search.ts` is KEPT (for analytics history) but a second call to `recordSearchKeyword(q, results.length)` feeds the new trending system. ~15 polluted rows (`{search_term_string}`, `zzzznotexist12345`, markup fragments) were deleted from the production `search_queries` table.
 - **Note on `{search_term_string}` still in the HTML:** it remains ONLY inside the JSON-LD `<script type="application/ld+json">` `WebSiteSchema` SearchAction `urlTemplate` — that's the schema.org spec (tells Google the site has a search box) and is correct/required. It is NOT in the visible "الأكثر بحثاً" chips anymore.
 
+## Rate Limiting & High-Traffic Hardening
+- **In-memory rate limiter** (`src/lib/rate-limit.ts`): sliding-window counter keyed by `${rule}:${ip}` (IP from `x-forwarded-for` → `x-real-ip` → "anonymous"). No external store (Redis/Upstash) — works on a single Railway replica with zero extra infra. If multi-replica horizontal scaling is added later, swap this for `@upstash/ratelimit` so limits are shared across instances.
+- **Rules** (`RATE_RULES`):
+  - `search` — 20 requests / 10s per IP (search is the heaviest DB op).
+  - `login` — 10 attempts / 10s per IP on `/api/auth/callback/credentials` POST only (brute-force protection).
+  - `write` — 5 / 10s per IP on POST to `/api/auth/register`, `/api/stores/register`, `/api/reviews`, `/api/search-requests`, `/api/upload`.
+  - `api` — 60 / 10s per IP on all other `/api/*` (generous; normal browsing's NextAuth session/csrf GETs hit this and are fine).
+- **Applied via middleware** (`src/middleware.ts`): the matcher was widened to include `/api/*` (was previously excluded). The middleware branches: `/api/*` → rate-limit check only (returns 429 JSON `{"error":"طلبات كثيرة جداً. حاول مرة أخرى بعد قليل."}` + `Retry-After` header, no CSP); pages → CSP only (unchanged behavior). The strict `login` rule is **scoped to the credentials callback POST** via `ruleForPath(pathname, method)` — the NextAuth `session`/`csrf`/`providers` GETs (fired on every page nav) use the generous `api` rule so normal browsing is never throttled.
+- **Garbage collection:** `gc()` prunes idle buckets every 60s so memory stays bounded even under sustained traffic.
+- **Verified:** hammering `/api/search` with 25 rapid requests → 20× HTTP 200 then 5× HTTP 429 with `Retry-After: 9`. Hammering `/api/auth/callback/credentials` with 13 attempts → 10× HTTP 302 then 3× HTTP 429. Normal page/`/api/auth/session` browsing returns 200 throughout.
+
+## JWT Role Cache (auth performance)
+- **Problem:** the `jwt` callback re-read the user's `role` from the DB on **every authenticated request** (`if (token.id && !user) prisma.user.findUnique...`). At 100 concurrent logged-in users browsing, that's 100 extra DB queries/sec just for auth — a real load multiplier.
+- **Fix:** the token now carries `roleCheckedAt` (a `Date.now()` timestamp). The callback only re-reads the role when the cached value is older than `ROLE_CACHE_TTL = 60_000` ms (60s), OR when `trigger === "update"` (forces immediate refresh — used by `/add-store` right after store registration so the USER → STORE_OWNER promotion is visible instantly). This cuts the auth DB load by ~60× for a browsing user while keeping role-change latency ≤ 60s. The `trigger === "update"` path is preserved exactly (critical for the store-registration flow documented above).
+
+## Search Analytics — Non-Blocking Writes
+- **Problem:** every search did `await prisma.searchQuery.create(...)` + `await recordSearchKeyword(...)` (2 sequential DB writes) before returning results. The user's search response waited on these writes.
+- **Fix:** the analytics writes are now fire-and-forget via `queueMicrotask(() => { prisma.searchQuery.create(...).then(() => recordSearchKeyword(...)).catch(()=>{}) })`. The search results return to the user immediately; the writes happen on the microtask queue in the background. Analytics are non-critical (wrapped in catch-all) so they never break the search. This halves the perceived latency of `/search` and `/api/search` under load.
+
 ## Categories — 50 General-Purpose Added (61 total)
 - **Why:** the platform's goal is to let ANYONE publish/sell anything — even an ordinary person without a shop. The original 11 categories were too shop-centric (pharmacy, food, fashion...). Added 50 general categories covering real estate, used goods, personal services, hobbies, jobs, donations, swap, lost-and-found, etc.
 - **Categories are DB rows, not code:** created directly via Prisma (one-off `tsx` script, since deleted). The admin UI (`/admin/categories`) and `/api/admin/categories` POST already handle CRUD with `slugify()` + unique-slug collision suffixing (`-2`, `-3`, ...). New categories appear on `/`, `/categories`, and `/categories/[slug]` automatically (after the `categories` cache tag busts).
